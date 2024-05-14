@@ -46,7 +46,7 @@ for file in $marks ; do
   # append to index
   echo "<p><a href=days/${target}>${name}</a></p>" >> ../${index}.html
   cmark --unsafe ${file}.md >> ../${index}.html
-  echo "<br/>" >> ../${index}.html
+  echo "<br/><br/><br/><br/><br/><br/><br/><br/>" >> ../${index}.html
 
   # append to rss
   echo "<item>" >> ../rss.xml
