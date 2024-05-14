@@ -1,24 +1,3 @@
-# echo ">> root .md to .html"
-# function htmlify() {
-#   for file in *.md ; do
-#     date=$(date -r ${file} +%D)
-#     file=${file%.*}
-#     echo "building $file"
-#     target=${file}.html
-#     cat $1 > ${target}
-#     cmark --unsafe ${file}.md >> ${target}
-#     cat $2 >> ${target}
-#     sed -i '' -e 's#DATE#'$date'#g' ${target}
-#     echo "$file built"
-#   done
-# }
-# htmlify "head.htm_" "foot.htm_"
-# for subdir in ./*/ ; do
-#   cd $subdir
-#   htmlify "../head.htm_" "../foot.htm_"
-#   cd ..
-# done
-
 echo ">> build rss"
 index="index"
 
