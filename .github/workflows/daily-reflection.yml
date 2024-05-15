@@ -1,0 +1,16 @@
+on:
+  schedule:
+  - cron: "0 0 * * 0-6"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Make and push changes
+      run: |
+        git commit -m "daily update"
+        git push -u origin main
