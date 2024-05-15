@@ -14,5 +14,7 @@ jobs:
 
     - name: Make and push changes
       run: |
+        git config --global user.email "williamthazard@protonmail.com"
+        git config --global user.name "williamthazard"
         git commit -m "daily update"
         git push -u origin main
