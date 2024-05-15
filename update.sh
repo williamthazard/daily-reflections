@@ -1,4 +1,6 @@
 #!/bin/bash
+zsh ./build.sh
+
 echo ">> updating daily reflection"
 
 git add .
