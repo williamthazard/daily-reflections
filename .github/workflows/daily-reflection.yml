@@ -9,11 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # - name: Checkout code
-    #   uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
     - name: Make and push changes
       run: |
-        # git commit -m "daily update"
-        # git push -u origin main
-        echo "running action"
+        git commit -m "daily update"
+        git push -u origin main
