@@ -37,7 +37,7 @@ for file in $marks ; do
 
   # paginate
   if [[ $((n % 10)) == 0 ]]; then
-    echo "<br/><p><a href=../${index}n.html>[further]</a></p>" >> ../${index}.html
+    echo "<br/><p><a href=../daily-reflections/${index}n.html>[further]</a></p>" >> ../${index}.html
     cat ../log-foot.htm_ >> ../${index}.html
     index=$index"n"
     cat ../head.htm_ > ../${index}.html
