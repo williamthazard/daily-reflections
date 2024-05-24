@@ -1,5 +1,6 @@
 echo ">> build rss"
 index="index"
+cmark="/opt/homebrew/bin/cmark"
 
 cat head.htm_ > ${index}.html
 cat start_rss.xml_ > rss.xml
@@ -30,7 +31,7 @@ for file in $marks ; do
   target=${file}.html
   cat ../head.htm_ > ${target}
   echo "<p>${name}</p>" >> ${target}
-  cmark --unsafe ${file}.md >> ${target}
+  $cmark --unsafe ${file}.md >> ${target}
   cat ../log-foot.htm_ >> ${target}
   echo $name
 
@@ -45,7 +46,7 @@ for file in $marks ; do
 
   # append to index
   echo "<p><a href=days/${target}>${name}</a></p>" >> ../${index}.html
-  cmark --unsafe ${file}.md >> ../${index}.html
+  $cmark --unsafe ${file}.md >> ../${index}.html
   echo "<br/><br/><br/><br/><br/><br/><br/><br/>" >> ../${index}.html
 
   # append to rss
@@ -54,7 +55,7 @@ for file in $marks ; do
   echo "<link>https://williamthazard.github.io/daily-reflections/${folder}/${name}.html</link>" >> ../rss.xml
   echo "<guid>https://williamthazard.github.io/daily-reflections/${folder}/${name}.html</guid>" >> ../rss.xml
   echo "<description><![CDATA[" >> ../rss.xml
-  cmark --unsafe ${file}.md >> ../rss.xml
+  $cmark --unsafe ${file}.md >> ../rss.xml
   echo "]]></description>" >> ../rss.xml
   date=$(date -r ${file}.md "+%a, %d %b %Y 11:11:11 EST")
   echo "<pubDate>$date</pubDate>" >> ../rss.xml 
