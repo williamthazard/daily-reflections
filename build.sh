@@ -1,5 +1,6 @@
 echo ">> build rss"
-index="index"
+pagenum=0
+index="index"$pagenum
 cmark="/opt/homebrew/bin/cmark"
 
 cat head.htm_ > ${index}.html
@@ -9,6 +10,9 @@ n=1
 
 cd days
 
+filename=$(date +%y%m%d).md
+touch $filename
+python ./scrape.py
 marks=(*.md)
 min=1
 max=$(( ${#marks[@]} ))
@@ -29,17 +33,19 @@ for file in $marks ; do
   name=${file#*/}
   folder=$(basename $(pwd))
   target=${file}.html
+  page=$(( ${n}/10 ))
   cat ../head.htm_ > ${target}
-  echo "<p>${name}</p>" >> ${target}
+  echo "<br/><p><a href=../index${page}.html>${name}</a></p>" >> ${target}
   $cmark --unsafe ${file}.md >> ${target}
-  cat ../log-foot.htm_ >> ${target}
+  cat ../foot.htm_ >> ${target}
   echo $name
 
   # paginate
   if [[ $((n % 10)) == 0 ]]; then
-    echo "<br/><p><a href=../daily-reflections/${index}n.html>[further]</a></p>" >> ../${index}.html
-    cat ../log-foot.htm_ >> ../${index}.html
-    index=$index"n"
+    ((pagenum=pagenum+1))
+    echo "<br/><p><a href=../daily-reflections/index${pagenum}.html>[further]</a></p>" >> ../${index}.html
+    cat ../foot.htm_ >> ../${index}.html
+    index="index"$pagenum
     cat ../head.htm_ > ../${index}.html
   fi
   ((n=n+1))
@@ -62,7 +68,8 @@ for file in $marks ; do
   echo "</item>" >> ../rss.xml
 done
 
-cat ../log-foot.htm_ >> ../${index}.html
+cat ../foot.htm_ >> ../${index}.html
 date=$(date -r ../${index}.html +%D)
 sed -i '' -e 's#DATE#'$date'#g' ../${index}.html
 cat ../end_rss.xml_ >> ../rss.xml
+cp -p -f ../index0.html ../index.html
