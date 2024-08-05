@@ -7,13 +7,13 @@ cmark="/opt/homebrew/bin/cmark"
 
 cat head.htm_ > ${index}.html
 cat start_rss.xml_ > rss.xml
+
 cp -f favicon.ico days/favicon.ico
 cp -f styles.css days/styles.css
 
 cd days
-filename=$(date +%y%m%d).md
-touch $filename
 python ./scrape.py
+
 marks=(*.md)
 min=1
 max=$(( ${#marks[@]} ))
