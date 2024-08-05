@@ -5,21 +5,27 @@ from datetime import date
 # URL of the webpage we'll be extracting text from 
 url = 'https://www.aahappyhour.com/daily-readings/' 
  
-# Send a request to the URL and get the webpage HTML content 
+# send a request to the URL and get the webpage HTML content 
 response = requests.get(url) 
 html_content = response.content 
  
-# Parse the HTML content using Beautiful Soup 
+# parse the HTML content using Beautiful Soup 
 title = BeautifulSoup(html_content, 'html.parser').select('div > p > strong')
 quote = BeautifulSoup(html_content, 'html.parser').select('div > blockquote > p')
 content = BeautifulSoup(html_content, 'html.parser').select('div > p')
+
+# counters for our parsed content
 titlenum = 0
 stringnum = 0
+
+# get today's date, which will be the name of our file
 filename = date.today().strftime('%y%m%d')
+
+# commands for making and adding to our markdown file
 writefile = open('{}.md'.format(filename),'w')
 appendfile = open('{}.md'.format(filename),'a')
  
-# Print the text 
+# print the text from the site to our markdown file
 for a in title:
     printable = a.get_text()
     titlenum = titlenum + 1
