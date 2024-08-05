@@ -1,5 +1,6 @@
 #!/bin/bash
 cd /Users/spencerkingmangraham/Desktop/other/daily-reflections/
+
 zsh ./build.sh
 
 echo ">> clearing worktree"
