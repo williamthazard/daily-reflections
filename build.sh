@@ -1,13 +1,14 @@
 echo ">> build rss"
+
 pagenum=0
+n=1
 index="index"$pagenum
 cmark="/opt/homebrew/bin/cmark"
 
 cat head.htm_ > ${index}.html
 cat start_rss.xml_ > rss.xml
 cp -f favicon.ico days/favicon.ico
-
-n=1
+cp -f styles.css days/styles.css
 
 cd days
 filename=$(date +%y%m%d).md
@@ -16,6 +17,7 @@ python ./scrape.py
 marks=(*.md)
 min=1
 max=$(( ${#marks[@]} ))
+
 while [[ min -lt max ]] ; do
     # Swap current first and last elements
     x="${marks[$min]}"
@@ -69,7 +71,5 @@ for file in $marks ; do
 done
 
 cat ../foot.htm_ >> ../${index}.html
-date=$(date -r ../${index}.html +%D)
-sed -i '' -e 's#DATE#'$date'#g' ../${index}.html
 cat ../end_rss.xml_ >> ../rss.xml
 cp -p -f ../index0.html ../index.html
