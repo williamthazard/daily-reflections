@@ -5,11 +5,11 @@ cmark="/opt/homebrew/bin/cmark"
 
 cat head.htm_ > ${index}.html
 cat start_rss.xml_ > rss.xml
+cp -f favicon.ico days/favicon.ico
 
 n=1
 
 cd days
-
 filename=$(date +%y%m%d).md
 touch $filename
 python ./scrape.py
