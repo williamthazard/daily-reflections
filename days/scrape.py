@@ -49,5 +49,6 @@ for a in content:
     printable = a.get_text()
     stringnum = stringnum + 1
     if stringnum > 8 and stringnum < 11:
-        appendfile.writelines(printable)
-        appendfile.writelines('\n\n')
+        if printable != "Twenty-Four Hours":
+            appendfile.writelines(printable)
+            appendfile.writelines('\n\n')
