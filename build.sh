@@ -4,6 +4,7 @@ pagenum=0
 n=1
 index="index"$pagenum
 cmark="/opt/homebrew/bin/cmark"
+python="/Users/spencerkingmangraham/.pyenv/shims/python"
 
 cat head.htm_ > ${index}.html
 cat start_rss.xml_ > rss.xml
@@ -12,8 +13,7 @@ cp -f favicon.ico days/favicon.ico
 cp -f styles.css days/styles.css
 
 cd days
-python ./scrape.py
-
+$python ./scrape.py
 marks=(*.md)
 min=1
 max=$(( ${#marks[@]} ))
