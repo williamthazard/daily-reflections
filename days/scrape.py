@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup 
 from datetime import date
  
-# Replace the URL with the URL of the webpage you want to extract the main text from 
+# URL of the webpage we'll be extracting text from 
 url = 'https://www.aahappyhour.com/daily-readings/' 
  
 # Send a request to the URL and get the webpage HTML content 
@@ -19,7 +19,7 @@ filename = date.today().strftime('%y%m%d')
 writefile = open('{}.md'.format(filename),'w')
 appendfile = open('{}.md'.format(filename),'a')
  
-# Print the main text 
+# Print the text 
 for a in title:
     printable = a.get_text()
     titlenum = titlenum + 1
