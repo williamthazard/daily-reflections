@@ -9,6 +9,6 @@ echo ">> worktree cleared"
 
 echo ">> updating daily reflection"
 git add .
-git commit -m 'daily update'
+git commit -m 'update'
 git push -u origin
 echo ">> daily reflection updated"
