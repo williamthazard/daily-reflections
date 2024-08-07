@@ -3,17 +3,17 @@ echo ">> build rss"
 pagenum=0
 n=1
 index="index"$pagenum
+
 cmark="/opt/homebrew/bin/cmark"
 python="/Users/spencerkingmangraham/.pyenv/shims/python"
 
 cat head.htm_ > ${index}.html
 cat start_rss.xml_ > rss.xml
 
-cp -f favicon.ico days/favicon.ico
-cp -f styles.css days/styles.css
-
 cd days
+
 $python ./scrape.py
+
 marks=(*.md)
 min=1
 max=$(( ${#marks[@]} ))
@@ -36,7 +36,7 @@ for file in $marks ; do
   folder=$(basename $(pwd))
   target=${file}.html
   page=$(( ${n}/10 ))
-  cat ../head.htm_ > ${target}
+  cat ../days-head.htm_ > ${target}
   echo "<br/><p><a href=../index${page}.html>${name}</a></p>" >> ${target}
   $cmark --unsafe ${file}.md >> ${target}
   cat ../foot.htm_ >> ${target}
