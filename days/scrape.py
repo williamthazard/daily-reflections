@@ -39,7 +39,7 @@ for a in quote:
     appendfile.writelines("<em>")
     nop = printable.replace('<p>','')
     nob = nop.replace('</p>','')
-    addclass = nob.replace('<br/>',"</em> \n <br/> \n <p class='right'>")
+    addclass = nob.replace('<br/>',"</em>\n<br/>\n<p class='right'>")
     appendfile.writelines(addclass)
     appendfile.writelines("</p>")
     appendfile.writelines('\n\n')
