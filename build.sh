@@ -45,7 +45,7 @@ for file in $marks ; do
   # paginate
   if [[ $((n % 10)) == 0 ]]; then
     ((pagenum=pagenum+1))
-    echo "<br/><p><a href=../daily-reflections/index${pagenum}.html>[further]</a></p>" >> ../${index}.html
+    echo "<br/><p><a href=./index${pagenum}.html>[further]</a></p>" >> ../${index}.html
     cat ../foot.htm_ >> ../${index}.html
     index="index"$pagenum
     cat ../head.htm_ > ../${index}.html
