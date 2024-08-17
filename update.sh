@@ -7,7 +7,8 @@ echo ">> clearing worktree"
 rm -f .git/index.lock
 echo ">> worktree cleared"
 
-su spencerkingmangraham
+git config --global user.name "williamthazard"
+git config --global user.email "105560469+williamthazard@users.noreply.github.com"
 
 echo ">> updating daily reflection"
 git add .
