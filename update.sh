@@ -3,6 +3,8 @@ cd /Users/spencerkingmangraham/Desktop/other/daily-reflections/
 
 zsh ./build.sh
 
+su spencerkingmangraham
+
 echo ">> clearing worktree"
 rm -f .git/index.lock
 echo ">> worktree cleared"
