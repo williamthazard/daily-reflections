@@ -7,6 +7,8 @@ echo ">> clearing worktree"
 rm -f .git/index.lock
 echo ">> worktree cleared"
 
+su spencerkingmangraham
+
 echo ">> updating daily reflection"
 git add .
 git commit -m 'update'
