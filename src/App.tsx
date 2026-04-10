@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { CalendarIcon, CloseIcon } from './Icons';
 
 type ReflectionData = {
   date: string;
@@ -185,15 +186,7 @@ function App() {
               className={`transition-colors p-2 -mr-2 ${showCalendar ? 'text-stone-900 dark:text-stone-100' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}
               aria-label={showCalendar ? 'Close calendar' : 'Open calendar'}
             >
-              {showCalendar ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              )}
+              {showCalendar ? <CloseIcon /> : <CalendarIcon className="h-5 w-5 md:h-6 md:w-6" />}
             </button>
           </div>
           <div className="flex justify-center gap-6 md:gap-8">
