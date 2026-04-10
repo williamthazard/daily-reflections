@@ -42,7 +42,6 @@ async function scrapeDailyReflection() {
       const source = teaser?.querySelector('p:nth-child(2)')?.textContent?.trim() || '';
 
       // The body contains the actual reflection text
-      // We skip the first few paragraphs if they repeat the quote/source
       const bodyParas = Array.from(article.querySelectorAll('.field--name-body p'));
       const bodyText = bodyParas
         .slice(2) // Skip repeated quote/source
@@ -50,12 +49,28 @@ async function scrapeDailyReflection() {
         .filter(text => text && text.length > 0)
         .join('\n\n');
 
+      // Extract SoundCloud Audio if present
+      // Note: The audio player is often a sibling to the article, not a child
+      const scIframe = document.querySelector('iframe[src*="soundcloud.com"]');
+      let audioTrackId = null;
+      let audioSecretToken = null;
+      
+      if (scIframe) {
+        const src = decodeURIComponent(scIframe.src);
+        const trackMatch = src.match(/tracks\/(\d+)/);
+        const tokenMatch = src.match(/secret_token=([^&]+)/);
+        if (trackMatch) audioTrackId = trackMatch[1];
+        if (tokenMatch) audioSecretToken = tokenMatch[1];
+      }
+
       return {
         title,
         dateText,
         quote,
         source,
-        body: bodyText
+        body: bodyText,
+        audioTrackId,
+        audioSecretToken
       };
     });
 
@@ -70,7 +85,9 @@ async function scrapeDailyReflection() {
       date: dateStr,
       title: data.title,
       quote: data.quote + (data.source ? `<br/><small>— ${data.source}</small>` : ''),
-      body: data.body
+      body: data.body,
+      audioTrackId: data.audioTrackId,
+      audioSecretToken: data.audioSecretToken
     };
 
     if (!fs.existsSync(DATA_DIR)) {

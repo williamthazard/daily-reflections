@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
-import { IoCalendarOutline, IoCloseOutline } from 'react-icons/io5';
+import { useState, useEffect, useRef } from 'react';
+import { IoCalendarOutline, IoCloseOutline, IoPlayOutline, IoPauseOutline } from 'react-icons/io5';
 
 type ReflectionData = {
   date: string;
   title: string;
   quote?: string;
   body: string;
+  audioTrackId?: string | null;
+  audioSecretToken?: string | null;
 };
 
 type ReflectionIndexItem = {
@@ -14,6 +16,89 @@ type ReflectionIndexItem = {
 };
 
 type Theme = 'light' | 'dark' | 'system';
+
+// Minimalist Audio Player Component
+const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: string | null }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const widgetRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!iframeRef.current || !(window as any).SC) return;
+    
+    const widget = (window as any).SC.Widget(iframeRef.current);
+    widgetRef.current = widget;
+
+    widget.bind((window as any).SC.Widget.Events.READY, () => {
+      widget.getDuration((d: number) => setDuration(d));
+    });
+
+    widget.bind((window as any).SC.Widget.Events.PLAY, () => setIsPlaying(true));
+    widget.bind((window as any).SC.Widget.Events.PAUSE, () => setIsPlaying(false));
+    widget.bind((window as any).SC.Widget.Events.FINISH, () => setIsPlaying(false));
+    widget.bind((window as any).SC.Widget.Events.PLAY_PROGRESS, (data: { currentPosition: number }) => {
+      setProgress(data.currentPosition);
+    });
+
+    return () => {
+      widget.unbind((window as any).SC.Widget.Events.READY);
+      widget.unbind((window as any).SC.Widget.Events.PLAY);
+      widget.unbind((window as any).SC.Widget.Events.PAUSE);
+      widget.unbind((window as any).SC.Widget.Events.FINISH);
+      widget.unbind((window as any).SC.Widget.Events.PLAY_PROGRESS);
+    };
+  }, [trackId]);
+
+  const togglePlay = () => {
+    if (widgetRef.current) {
+      widgetRef.current.toggle();
+    }
+  };
+
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const scUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
+
+  return (
+    <div className="mt-8 mb-4 py-6 border-t border-stone-100 dark:border-stone-900 animate-fade-in">
+      <div className="flex items-center gap-6">
+        <button 
+          onClick={togglePlay}
+          className="w-12 h-12 flex items-center justify-center rounded-full bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800 transition-all shadow-sm"
+          aria-label={isPlaying ? 'Pause' : 'Play'}
+        >
+          {isPlaying ? <IoPauseOutline size={24} /> : <IoPlayOutline size={24} className="ml-1" />}
+        </button>
+        
+        <div className="flex-grow space-y-2">
+          <div className="h-1 w-full bg-stone-100 dark:bg-stone-900 rounded-full overflow-hidden relative">
+            <div 
+              className="absolute h-full bg-stone-400 dark:bg-stone-600 transition-all duration-300 rounded-full"
+              style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%` }}
+            />
+          </div>
+          <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-stone-400 font-mono">
+            <span>{formatTime(progress)} / {formatTime(duration)}</span>
+            <span className="opacity-50">Audio via SoundCloud</span>
+          </div>
+        </div>
+      </div>
+      <iframe
+        ref={iframeRef}
+        src={scUrl}
+        className="hidden"
+        allow="autoplay"
+      />
+    </div>
+  );
+};
 
 function App() {
   const [index, setIndex] = useState<ReflectionIndexItem[]>([]);
@@ -216,6 +301,12 @@ function App() {
                 <div className="space-y-10 text-lg leading-[1.9] text-stone-800 dark:text-stone-200 font-serif antialiased text-justify">
                   {currentReflection.body.split('\n\n').map((p, i) => <p key={i} className="first-letter:text-2xl dark:first-letter:text-stone-100">{p}</p>)}
                 </div>
+                {currentReflection.audioTrackId && (
+                  <AudioPlayer 
+                    trackId={currentReflection.audioTrackId} 
+                    secretToken={currentReflection.audioSecretToken} 
+                  />
+                )}
                 <Nav />
               </div>
             </article>
