@@ -35,11 +35,23 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
     const onReady = () => {
       widget.getDuration((d: number) => setDuration(d));
     };
-    const onPlay = () => setIsPlaying(true);
+    const onPlay = () => {
+      setIsPlaying(true);
+      // Fallback: fetch duration if still 0
+      widget.getDuration((d: number) => {
+        if (d) setDuration(d);
+      });
+    };
     const onPause = () => setIsPlaying(false);
     const onFinish = () => setIsPlaying(false);
     const onProgress = (data: { currentPosition: number }) => {
       setProgress(data.currentPosition);
+      // Fallback: if duration is still 0, try to get it again
+      if (duration === 0) {
+        widget.getDuration((d: number) => {
+          if (d) setDuration(d);
+        });
+      }
     };
 
     widget.bind((window as any).SC.Widget.Events.READY, onReady);
@@ -63,16 +75,24 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
   useEffect(() => {
     if (widgetRef.current && trackId) {
       const url = `https://api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}`;
+      
+      // Reset local state for new track
+      setProgress(0);
+      setDuration(0);
+
       widgetRef.current.load(url, {
         auto_play: false,
         show_comments: false,
         show_user: false,
         show_reposts: false,
-        show_teaser: false
+        show_teaser: false,
+        callback: () => {
+          // Re-fetch duration once the load is complete
+          widgetRef.current.getDuration((d: number) => {
+            if (d) setDuration(d);
+          });
+        }
       });
-      // Reset local state for new track
-      setProgress(0);
-      setDuration(0);
     }
   }, [trackId, secretToken]);
 
