@@ -4,11 +4,20 @@
 
 body {
   @apply bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 font-sans antialiased transition-colors duration-500 overflow-x-hidden;
+  color-scheme: light;
+}
+
+.dark body {
+  color-scheme: dark;
 }
 
 /* Ensure overscroll matches theme */
 html {
   @apply bg-stone-50 dark:bg-stone-950;
+}
+
+.dark {
+  color-scheme: dark;
 }
 
 @layer utilities {

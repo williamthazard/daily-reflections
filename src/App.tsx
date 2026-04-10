@@ -30,6 +30,7 @@ function App() {
     const applyTheme = (t: string) => {
       root.classList.remove('light', 'dark');
       root.classList.add(t);
+      root.style.colorScheme = t;
       // Update browser theme-color for mobile chrome
       let meta = document.querySelector('meta[name="theme-color"]');
       if (!meta) {
