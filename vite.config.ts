@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/daily-reflections/', // Ensure assets load correctly on GitHub Pages subpath
+  base: '/', // Set to '/' for custom domain (dailyreflections.co)
 })
