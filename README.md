@@ -1,73 +1,50 @@
-# React + TypeScript + Vite
+# Daily Reflections
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A minimalist, automated reading experience for Alcoholics Anonymous Daily Reflections.
 
-Currently, two official plugins are available:
+![Daily Reflections Screenshot](https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&q=80&w=1000)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌟 Features
 
-## React Compiler
+- **Official Source**: Automatically scrapes the latest reflection from the official [aa.org](https://www.aa.org/daily-reflections) website every morning.
+- **Minimalist Aesthetic**: Clean, responsive typography designed for deep reading and reflection.
+- **Historical Archives**: Built-in calendar utility to browse past reflections.
+- **Fully Automated**: Powered by GitHub Actions—no manual updates or local servers required.
+- **RSS Feed**: Built-in RSS generator for integration with your favorite feed reader.
+- **Dark Mode**: Support for light, dark, and system-default themes.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 How it Works
 
-## Expanding the ESLint configuration
+The application uses a "Scheduled Scraper" architecture:
+1. **GitHub Action**: Runs every morning at 2:00 AM EST.
+2. **Scraper**: A Node.js + Puppeteer script launches a headless browser to pull the current reflection from the official source.
+3. **Data Storage**: The reflection is saved as a JSON file in the repository.
+4. **Site Build**: The React application pulls from these JSON files at runtime.
+5. **Auto-Deploy**: The latest data and the built site are automatically deployed back to GitHub Pages.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🛠️ Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS
+- **Scraping**: Node.js, Puppeteer, Cheerio
+- **Automation**: GitHub Actions
+- **RSS**: Node RSS module
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 📖 Local Development
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Install dependencies
+npm install
+
+# Run the development server
+npm run dev
+
+# Manually trigger a scrape
+npm run scrape
+
+# Build the production application
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+*Created with care for the AA community.*

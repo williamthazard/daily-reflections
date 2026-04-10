@@ -1,6 +1,9 @@
 name: Daily Update
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # Run every day at 6:00 AM UTC (2:00 AM EST)
     - cron: '0 6 * * *'
