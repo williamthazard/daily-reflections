@@ -31,23 +31,31 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
     const widget = (window as any).SC.Widget(iframeRef.current);
     widgetRef.current = widget;
 
-    widget.bind((window as any).SC.Widget.Events.READY, () => {
+    const onReady = () => {
       widget.getDuration((d: number) => setDuration(d));
-    });
-
-    widget.bind((window as any).SC.Widget.Events.PLAY, () => setIsPlaying(true));
-    widget.bind((window as any).SC.Widget.Events.PAUSE, () => setIsPlaying(false));
-    widget.bind((window as any).SC.Widget.Events.FINISH, () => setIsPlaying(false));
-    widget.bind((window as any).SC.Widget.Events.PLAY_PROGRESS, (data: { currentPosition: number }) => {
+    };
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onFinish = () => setIsPlaying(false);
+    const onProgress = (data: { currentPosition: number }) => {
       setProgress(data.currentPosition);
-    });
+    };
+
+    widget.bind((window as any).SC.Widget.Events.READY, onReady);
+    widget.bind((window as any).SC.Widget.Events.PLAY, onPlay);
+    widget.bind((window as any).SC.Widget.Events.PAUSE, onPause);
+    widget.bind((window as any).SC.Widget.Events.FINISH, onFinish);
+    widget.bind((window as any).SC.Widget.Events.PLAY_PROGRESS, onProgress);
 
     return () => {
-      widget.unbind((window as any).SC.Widget.Events.READY);
-      widget.unbind((window as any).SC.Widget.Events.PLAY);
-      widget.unbind((window as any).SC.Widget.Events.PAUSE);
-      widget.unbind((window as any).SC.Widget.Events.FINISH);
-      widget.unbind((window as any).SC.Widget.Events.PLAY_PROGRESS);
+      if (widget) {
+        widget.unbind((window as any).SC.Widget.Events.READY);
+        widget.unbind((window as any).SC.Widget.Events.PLAY);
+        widget.unbind((window as any).SC.Widget.Events.PAUSE);
+        widget.unbind((window as any).SC.Widget.Events.FINISH);
+        widget.unbind((window as any).SC.Widget.Events.PLAY_PROGRESS);
+      }
+      widgetRef.current = null;
     };
   }, [trackId]);
 
@@ -67,7 +75,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
   const scUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
 
   return (
-    <div className="mt-12 py-10 border-t border-stone-100 dark:border-stone-900 animate-fade-in">
+    <div className="mt-12 py-12 border-t border-stone-100 dark:border-stone-900 animate-fade-in">
       <div className="flex items-center gap-6">
         <button 
           onClick={togglePlay}
@@ -167,6 +175,7 @@ function App() {
 
   const loadReflection = (dateStr: string) => {
     setLoading(true);
+    setError(''); // Clear error on new load
     fetch(`${import.meta.env.BASE_URL}data/${dateStr}.json`)
       .then(res => res.json())
       .then(data => {
@@ -197,7 +206,7 @@ function App() {
   const prevItem = currentIdx >= 0 && currentIdx < index.length - 1 ? index[currentIdx + 1] : null;
 
   const Nav = () => (
-    <nav className="flex justify-between items-center mt-12 mb-12 text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-y border-stone-100 dark:border-stone-900 py-4 font-sans antialiased">
+    <nav className={`flex justify-between items-center mb-12 text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-y border-stone-100 dark:border-stone-900 py-4 font-sans antialiased ${currentReflection?.audioTrackId ? 'mt-0' : 'mt-12'}`}>
       {prevItem ? (
         <button onClick={() => loadReflection(prevItem.date)} className="hover:text-stone-900 dark:hover:text-stone-200 transition-colors">← previous day</button>
       ) : <span className="opacity-20 select-none">← previous day</span>}
