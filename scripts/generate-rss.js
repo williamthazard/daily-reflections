@@ -27,7 +27,7 @@ function generateRSS() {
   });
 
   // Add the last 30 days to RSS feed
-  const recent = index.slice(0, 30);
+  const recent = index.slice(0, 365);
 
   recent.forEach(entry => {
     const entryPath = path.join(DATA_DIR, `${entry.date}.json`);
