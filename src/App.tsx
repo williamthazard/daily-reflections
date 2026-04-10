@@ -96,11 +96,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
     }
   }, [trackId, secretToken]);
 
-  const togglePlay = () => {
-    if (widgetRef.current) {
-      widgetRef.current.toggle();
-    }
-  };
+  // formatTime internal helper
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -113,15 +109,25 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
   const initialUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
 
   return (
-    <div className="mt-12 pt-12 border-t border-stone-100 dark:border-stone-900 animate-fade-in">
+    <div className="mt-12 pt-12 border-t border-stone-100 dark:border-stone-900 animate-fade-in relative">
       <div className="flex items-center gap-6">
-        <button 
-          onClick={togglePlay}
-          className="w-12 h-12 flex items-center justify-center rounded-full bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800 transition-all shadow-sm"
-          aria-label={isPlaying ? 'Pause' : 'Play'}
-        >
-          {isPlaying ? <IoPauseOutline size={24} /> : <IoPlayOutline size={24} className="ml-1" />}
-        </button>
+        <div className="relative group">
+          {/* Transparent Overlay Trigger for Mobile/Gesture Authorization */}
+          <iframe
+            ref={iframeRef}
+            src={initialUrl}
+            className="absolute inset-0 w-full h-full opacity-[0.001] z-20 cursor-pointer"
+            allow="autoplay"
+            title="Audio Player Proxy"
+          />
+          
+          <button 
+            className="w-12 h-12 flex items-center justify-center rounded-full bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 group-hover:bg-stone-200 dark:group-hover:bg-stone-800 transition-all shadow-sm relative z-10"
+            aria-label={isPlaying ? 'Pause' : 'Play'}
+          >
+            {isPlaying ? <IoPauseOutline size={24} /> : <IoPlayOutline size={24} className="ml-1" />}
+          </button>
+        </div>
         
         <div className="flex-grow space-y-2">
           <div className="h-1 w-full bg-stone-100 dark:bg-stone-900 rounded-full overflow-hidden relative">
@@ -143,19 +149,6 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
           </div>
         </div>
       </div>
-      <iframe
-        ref={iframeRef}
-        src={initialUrl}
-        style={{ 
-          position: 'absolute', 
-          width: '1px', 
-          height: '1px', 
-          opacity: 0, 
-          pointerEvents: 'none',
-          border: 'none'
-        }}
-        allow="autoplay"
-      />
     </div>
   );
 };

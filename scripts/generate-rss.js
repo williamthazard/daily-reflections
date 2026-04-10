@@ -44,7 +44,6 @@ function generateRSS() {
         content += `
           <hr />
           <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="${scUrl}"></iframe>
-          <p><a href="https://soundcloud.com/aaws">Audio via SoundCloud</a></p>
         `;
       }
 
