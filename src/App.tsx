@@ -269,7 +269,7 @@ function App() {
           </div>
         </div>
         <div className="grid grid-cols-7 gap-1 mb-12">
-          {['S','M','T','W','T','F','S'].map(day => <div key={day} className="text-center text-[10px] uppercase tracking-widest text-stone-400 font-medium mb-2">{day}</div>)}
+          {['S','M','T','W','T','F','S'].map((day, i) => <div key={`${day}-${i}`} className="text-center text-[10px] uppercase tracking-widest text-stone-400 font-medium mb-2">{day}</div>)}
           {dateCells}
         </div>
         <div className="mt-12 pt-8 border-t border-stone-100 dark:border-stone-800">
@@ -309,43 +309,55 @@ function App() {
         </header>
 
         <main className="flex-grow">
-          {error ? (
+          {(!currentReflection && error) ? (
             <div className="text-red-400 flex justify-center mt-20">{error}</div>
-          ) : (loading && !currentReflection) ? (
+          ) : (!currentReflection && loading) ? (
             <div className="text-stone-400 italic font-serif flex justify-center mt-20">loading...</div>
-          ) : showCalendar ? (
-            <CalendarView />
-          ) : currentReflection ? (
-            <article className="max-w-2xl mx-auto relative">
-              {/* Loading Overlay */}
-              <div className={`absolute inset-0 z-10 bg-stone-50/50 dark:bg-stone-950/50 backdrop-blur-[2px] flex items-start justify-center pt-20 transition-opacity duration-300 ${loading ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-                 <span className="text-stone-400 italic font-serif">loading...</span>
+          ) : (
+            <>
+              {/* Calendar View - Persistent but hidden when not active */}
+              <div className={showCalendar ? 'block' : 'hidden'}>
+                <CalendarView />
               </div>
 
-              <div className={`transition-all duration-500 flex flex-col ${loading ? 'opacity-20 blur-[1px]' : 'opacity-100'}`}>
-                <span className="text-xs font-mono text-stone-400 tracking-[0.3em] block text-center mb-10 uppercase">{formatDate(currentReflection.date)}</span>
-                <h2 className="text-3xl md:text-4xl font-light tracking-widest mt-4 mb-12 text-center uppercase leading-snug text-stone-800 dark:text-stone-100">{currentReflection.title}</h2>
-                
-                <div className="max-w-prose mx-auto w-full flex flex-col gap-12">
-                  {currentReflection.quote && (
-                    <blockquote className="text-xl italic text-stone-600 dark:text-stone-400 leading-relaxed font-serif border-l-2 border-stone-100 dark:border-stone-900 pl-8 mb-4" dangerouslySetInnerHTML={{ __html: currentReflection.quote }} />
-                  )}
-                  <div className="space-y-10 text-lg leading-[1.9] text-stone-800 dark:text-stone-200 font-serif antialiased text-justify">
-                    {currentReflection.body.split('\n\n').map((p, i) => <p key={i} className="first-letter:text-2xl dark:first-letter:text-stone-100">{p}</p>)}
+              {/* Reflection View - Persistent but hidden when calendar is active */}
+              {currentReflection && (
+                <article className={`max-w-2xl mx-auto relative ${showCalendar ? 'hidden' : 'block'}`}>
+                  {/* Loading/Error Overlay */}
+                  <div className={`absolute inset-0 z-10 bg-stone-50/50 dark:bg-stone-950/50 backdrop-blur-[2px] flex items-start justify-center pt-20 transition-opacity duration-300 ${(loading || error) ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <div className="text-center space-y-4">
+                      {loading && <span className="text-stone-400 italic font-serif">loading...</span>}
+                      {error && <span className="text-red-400 block">{error}</span>}
+                    </div>
                   </div>
-                  
-                  {currentReflection.audioTrackId && (
-                    <AudioPlayer 
-                      trackId={currentReflection.audioTrackId} 
-                      secretToken={currentReflection.audioSecretToken} 
-                    />
-                  )}
-                  
-                  <Nav />
-                </div>
-              </div>
-            </article>
-          ) : null}
+
+                  <div className={`transition-all duration-500 flex flex-col ${(loading || error) ? 'opacity-20 blur-[1px]' : 'opacity-100'}`}>
+                    <span className="text-xs font-mono text-stone-400 tracking-[0.3em] block text-center mb-10 uppercase">{formatDate(currentReflection.date)}</span>
+                    <h2 className="text-3xl md:text-4xl font-light tracking-widest mt-4 mb-12 text-center uppercase leading-snug text-stone-800 dark:text-stone-100">{currentReflection.title}</h2>
+                    
+                    <div className="max-w-prose mx-auto w-full flex flex-col gap-12">
+                      {currentReflection.quote && (
+                        <blockquote className="text-xl italic text-stone-600 dark:text-stone-400 leading-relaxed font-serif border-l-2 border-stone-100 dark:border-stone-900 pl-8 mb-4" dangerouslySetInnerHTML={{ __html: currentReflection.quote }} />
+                      )}
+                      
+                      <div className="space-y-10 text-lg leading-[1.9] text-stone-800 dark:text-stone-200 font-serif antialiased text-justify">
+                        {currentReflection.body.split('\n\n').map((p, i) => <p key={i} className="first-letter:text-2xl dark:first-letter:text-stone-100">{p}</p>)}
+                      </div>
+                      
+                      {currentReflection.audioTrackId && (
+                        <AudioPlayer 
+                          trackId={currentReflection.audioTrackId} 
+                          secretToken={currentReflection.audioSecretToken} 
+                        />
+                      )}
+                      
+                      <Nav />
+                    </div>
+                  </div>
+                </article>
+              )}
+            </>
+          )}
         </main>
 
         <footer className="mt-24 border-t border-stone-100 dark:border-stone-900 pt-10 text-center text-[10px] text-stone-400 space-y-3 tracking-widest uppercase pb-12">
