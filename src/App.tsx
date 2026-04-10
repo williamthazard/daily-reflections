@@ -146,7 +146,14 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
       <iframe
         ref={iframeRef}
         src={initialUrl}
-        className="hidden"
+        style={{ 
+          position: 'absolute', 
+          width: '1px', 
+          height: '1px', 
+          opacity: 0, 
+          pointerEvents: 'none',
+          border: 'none'
+        }}
         allow="autoplay"
       />
     </div>
