@@ -34,10 +34,19 @@ function generateRSS() {
     if (fs.existsSync(entryPath)) {
       const data = JSON.parse(fs.readFileSync(entryPath, 'utf-8'));
       
-      const content = `
+      let content = `
         <p><em>${data.quote}</em></p>
-        <p>${data.body}</p>
+        <p>${data.body.replace(/\n\n/g, '</p><p>')}</p>
       `;
+
+      if (data.audioTrackId) {
+        const scUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${data.audioTrackId}${data.audioSecretToken ? `%3Fsecret_token%3D${data.audioSecretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
+        content += `
+          <hr />
+          <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="${scUrl}"></iframe>
+          <p><a href="https://soundcloud.com/aaws">Audio via SoundCloud</a></p>
+        `;
+      }
 
       feed.item({
         title: data.title,
