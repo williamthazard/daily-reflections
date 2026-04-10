@@ -5,6 +5,23 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Daily Reflections</title>
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme') || 'system';
+          var supportDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var activeTheme = theme === 'system' ? (supportDark ? 'dark' : 'light') : theme;
+          document.documentElement.classList.add(activeTheme);
+          document.documentElement.style.colorScheme = activeTheme;
+          // Set initial theme-color meta
+          var themeColor = activeTheme === 'dark' ? '#0c0a09' : '#fafaf9';
+          var meta = document.createElement('meta');
+          meta.name = 'theme-color';
+          meta.content = themeColor;
+          document.head.appendChild(meta);
+        } catch (e) {}
+      })();
+    </script>
     <script src="https://w.soundcloud.com/player/api.js"></script>
   </head>
   <body>

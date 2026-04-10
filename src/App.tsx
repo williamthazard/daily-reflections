@@ -169,22 +169,24 @@ function App() {
       root.classList.remove('light', 'dark');
       root.classList.add(t);
       root.style.colorScheme = t;
-      // Update browser theme-color for mobile chrome
+      
       let meta = document.querySelector('meta[name="theme-color"]');
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('name', 'theme-color');
-        document.head.appendChild(meta);
+      if (meta) {
+        meta.setAttribute('content', t === 'dark' ? '#0c0a09' : '#fafaf9');
       }
-      meta.setAttribute('content', t === 'dark' ? '#0c0a09' : '#fafaf9'); // stone-950 and stone-50
+    };
+
+    const handleSystemTheme = () => {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      applyTheme(mediaQuery.matches ? 'dark' : 'light');
+      
+      const listener = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light');
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
     };
 
     if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      applyTheme(mediaQuery.matches ? 'dark' : 'light');
-      const listener = () => applyTheme(mediaQuery.matches ? 'dark' : 'light');
-      mediaQuery.addEventListener('change', listener);
-      return () => mediaQuery.removeEventListener('change', listener);
+      return handleSystemTheme();
     } else {
       applyTheme(theme);
     }
