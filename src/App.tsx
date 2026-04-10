@@ -29,6 +29,14 @@ function App() {
     const applyTheme = (t: string) => {
       root.classList.remove('light', 'dark');
       root.classList.add(t);
+      // Update browser theme-color for mobile chrome
+      let meta = document.querySelector('meta[name="theme-color"]');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', t === 'dark' ? '#0c0a09' : '#fafaf9'); // stone-950 and stone-50
     };
 
     if (theme === 'system') {
@@ -129,7 +137,7 @@ function App() {
           key={d} 
           onClick={() => hasReflection && (loadReflection(dateStr), setShowCalendar(false))}
           className={`h-12 w-full flex items-center justify-center text-sm cursor-pointer transition-all border border-transparent rounded
-            ${hasReflection ? 'bg-stone-100 dark:bg-stone-800 font-medium hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-900 dark:text-stone-100 border-stone-200 dark:border-stone-700' : 'text-stone-300 dark:text-stone-700 pointer-events-none'}
+            ${hasReflection ? 'bg-stone-100 dark:bg-stone-900/50 font-medium hover:bg-stone-200 dark:hover:bg-stone-900 text-stone-900 dark:text-stone-100 border-stone-200 dark:border-stone-800' : 'text-stone-300 dark:text-stone-800 pointer-events-none'}
             ${isSelected ? 'ring-2 ring-stone-400 dark:ring-stone-500 ring-inset' : ''}
           `}
         >
@@ -167,16 +175,30 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] dark:bg-stone-950 transition-colors duration-500 selection:bg-stone-200 dark:selection:bg-stone-800 font-sans">
-      <div className="py-16 px-8 max-w-3xl mx-auto flex flex-col">
-        <header className="flex flex-col gap-10 mb-24 animate-fade-in">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors duration-500 selection:bg-stone-200 dark:selection:bg-stone-800 font-sans">
+      <div className="py-12 md:py-16 px-6 md:px-8 max-w-3xl mx-auto flex flex-col">
+        <header className="flex flex-col gap-10 mb-20 md:mb-24 animate-fade-in">
           <div className="flex justify-between items-center">
-            <h1 className="text-xl tracking-[0.2em] text-stone-400 font-light cursor-pointer select-none uppercase" onClick={() => (loadReflection(index[0]?.date), setShowCalendar(false))}>daily reflections</h1>
-            <button onClick={() => setShowCalendar(!showCalendar)} className="text-xs uppercase tracking-widest border-b border-stone-200 dark:border-stone-800 hover:border-stone-500 dark:hover:border-stone-400 transition-colors pb-1 text-stone-500">{showCalendar ? 'close' : 'calendar'}</button>
+            <h1 className="text-lg md:text-xl tracking-[0.2em] text-stone-400 font-light cursor-pointer select-none uppercase" onClick={() => (loadReflection(index[0]?.date), setShowCalendar(false))}>daily reflections</h1>
+            <button 
+              onClick={() => setShowCalendar(!showCalendar)} 
+              className={`transition-colors p-2 -mr-2 ${showCalendar ? 'text-stone-900 dark:text-stone-100' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}
+              aria-label={showCalendar ? 'Close calendar' : 'Open calendar'}
+            >
+              {showCalendar ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              )}
+            </button>
           </div>
-          <div className="flex justify-center gap-8">
+          <div className="flex justify-center gap-6 md:gap-8">
             {(['system', 'light', 'dark'] as const).map(t => (
-              <button key={t} onClick={() => setTheme(t)} className={`text-[10px] uppercase tracking-[0.2em] transition-colors ${theme === t ? 'text-stone-800 dark:text-stone-200 font-bold underline decoration-stone-300' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}>{t}</button>
+              <button key={t} onClick={() => setTheme(t)} className={`text-[10px] uppercase tracking-[0.2em] transition-colors ${theme === t ? 'text-stone-800 dark:text-stone-200 font-bold underline underline-offset-4 decoration-stone-300 dark:decoration-stone-700' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}>{t}</button>
             ))}
           </div>
         </header>
