@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CalendarIcon, CloseIcon } from './Icons';
+import { IoCalendarOutline, IoCloseOutline } from 'react-icons/io5';
 
 type ReflectionData = {
   date: string;
@@ -186,7 +186,7 @@ function App() {
               className={`transition-colors p-2 -mr-2 ${showCalendar ? 'text-stone-900 dark:text-stone-100' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}
               aria-label={showCalendar ? 'Close calendar' : 'Open calendar'}
             >
-              {showCalendar ? <CloseIcon /> : <CalendarIcon className="h-5 w-5 md:h-6 md:w-6" />}
+              {showCalendar ? <IoCloseOutline size={24} /> : <IoCalendarOutline size={22} />}
             </button>
           </div>
           <div className="flex justify-center gap-6 md:gap-8">
