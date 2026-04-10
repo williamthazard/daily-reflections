@@ -25,6 +25,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const widgetRef = useRef<any>(null);
 
+  // Initialize widget once
   useEffect(() => {
     if (!iframeRef.current || !(window as any).SC) return;
     
@@ -48,16 +49,32 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
     widget.bind((window as any).SC.Widget.Events.PLAY_PROGRESS, onProgress);
 
     return () => {
-      if (widget) {
-        widget.unbind((window as any).SC.Widget.Events.READY);
-        widget.unbind((window as any).SC.Widget.Events.PLAY);
-        widget.unbind((window as any).SC.Widget.Events.PAUSE);
-        widget.unbind((window as any).SC.Widget.Events.FINISH);
-        widget.unbind((window as any).SC.Widget.Events.PLAY_PROGRESS);
+      if (widgetRef.current) {
+        widgetRef.current.unbind((window as any).SC.Widget.Events.READY);
+        widgetRef.current.unbind((window as any).SC.Widget.Events.PLAY);
+        widgetRef.current.unbind((window as any).SC.Widget.Events.PAUSE);
+        widgetRef.current.unbind((window as any).SC.Widget.Events.FINISH);
+        widgetRef.current.unbind((window as any).SC.Widget.Events.PLAY_PROGRESS);
       }
-      widgetRef.current = null;
     };
-  }, [trackId]);
+  }, []);
+
+  // Load new track when IDs change without unmounting
+  useEffect(() => {
+    if (widgetRef.current && trackId) {
+      const url = `https://api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}`;
+      widgetRef.current.load(url, {
+        auto_play: false,
+        show_comments: false,
+        show_user: false,
+        show_reposts: false,
+        show_teaser: false
+      });
+      // Reset local state for new track
+      setProgress(0);
+      setDuration(0);
+    }
+  }, [trackId, secretToken]);
 
   const togglePlay = () => {
     if (widgetRef.current) {
@@ -72,10 +89,10 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const scUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
+  const initialUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
 
   return (
-    <div className="mt-12 py-12 border-t border-stone-100 dark:border-stone-900 animate-fade-in">
+    <div className="py-12 border-t border-stone-100 dark:border-stone-900 animate-fade-in">
       <div className="flex items-center gap-6">
         <button 
           onClick={togglePlay}
@@ -94,13 +111,13 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
           </div>
           <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-stone-400 font-mono">
             <span>{formatTime(progress)} / {formatTime(duration)}</span>
-            <span className="opacity-50">Audio via SoundCloud</span>
+            <span className="opacity-50 text-[9px]">Audio via SoundCloud</span>
           </div>
         </div>
       </div>
       <iframe
         ref={iframeRef}
-        src={scUrl}
+        src={initialUrl}
         className="hidden"
         allow="autoplay"
       />
@@ -292,31 +309,40 @@ function App() {
         </header>
 
         <main className="flex-grow">
-          {loading ? (
-            <div className="text-stone-400 italic font-serif flex justify-center mt-20">loading...</div>
-          ) : error ? (
+          {error ? (
             <div className="text-red-400 flex justify-center mt-20">{error}</div>
+          ) : (loading && !currentReflection) ? (
+            <div className="text-stone-400 italic font-serif flex justify-center mt-20">loading...</div>
           ) : showCalendar ? (
             <CalendarView />
           ) : currentReflection ? (
-            <article className="animate-fade-in max-w-2xl mx-auto">
-              <span className="text-xs font-mono text-stone-400 tracking-[0.3em] block text-center mb-10 uppercase">{formatDate(currentReflection.date)}</span>
-              <h2 className="text-3xl md:text-4xl font-light tracking-widest mt-4 mb-12 text-center uppercase leading-snug text-stone-800 dark:text-stone-100">{currentReflection.title}</h2>
-              
-              <div className="max-w-prose mx-auto">
-                {currentReflection.quote && (
-                  <blockquote className="mb-16 text-xl italic text-stone-600 dark:text-stone-400 leading-relaxed font-serif border-l-2 border-stone-100 dark:border-stone-900 pl-8" dangerouslySetInnerHTML={{ __html: currentReflection.quote }} />
-                )}
-                <div className="space-y-10 text-lg leading-[1.9] text-stone-800 dark:text-stone-200 font-serif antialiased text-justify">
-                  {currentReflection.body.split('\n\n').map((p, i) => <p key={i} className="first-letter:text-2xl dark:first-letter:text-stone-100">{p}</p>)}
+            <article className="max-w-2xl mx-auto relative">
+              {/* Loading Overlay */}
+              <div className={`absolute inset-0 z-10 bg-stone-50/50 dark:bg-stone-950/50 backdrop-blur-[2px] flex items-start justify-center pt-20 transition-opacity duration-300 ${loading ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                 <span className="text-stone-400 italic font-serif">loading...</span>
+              </div>
+
+              <div className={`transition-all duration-500 flex flex-col ${loading ? 'opacity-20 blur-[1px]' : 'opacity-100'}`}>
+                <span className="text-xs font-mono text-stone-400 tracking-[0.3em] block text-center mb-10 uppercase">{formatDate(currentReflection.date)}</span>
+                <h2 className="text-3xl md:text-4xl font-light tracking-widest mt-4 mb-12 text-center uppercase leading-snug text-stone-800 dark:text-stone-100">{currentReflection.title}</h2>
+                
+                <div className="max-w-prose mx-auto w-full flex flex-col gap-12">
+                  {currentReflection.quote && (
+                    <blockquote className="text-xl italic text-stone-600 dark:text-stone-400 leading-relaxed font-serif border-l-2 border-stone-100 dark:border-stone-900 pl-8 mb-4" dangerouslySetInnerHTML={{ __html: currentReflection.quote }} />
+                  )}
+                  <div className="space-y-10 text-lg leading-[1.9] text-stone-800 dark:text-stone-200 font-serif antialiased text-justify">
+                    {currentReflection.body.split('\n\n').map((p, i) => <p key={i} className="first-letter:text-2xl dark:first-letter:text-stone-100">{p}</p>)}
+                  </div>
+                  
+                  {currentReflection.audioTrackId && (
+                    <AudioPlayer 
+                      trackId={currentReflection.audioTrackId} 
+                      secretToken={currentReflection.audioSecretToken} 
+                    />
+                  )}
+                  
+                  <Nav />
                 </div>
-                {currentReflection.audioTrackId && (
-                  <AudioPlayer 
-                    trackId={currentReflection.audioTrackId} 
-                    secretToken={currentReflection.audioSecretToken} 
-                  />
-                )}
-                <Nav />
               </div>
             </article>
           ) : null}
