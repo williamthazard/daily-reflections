@@ -2,8 +2,6 @@
 
 A minimalist, automated reading experience for Alcoholics Anonymous Daily Reflections.
 
-![Daily Reflections Screenshot](https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&q=80&w=1000)
-
 ## 🌟 Features
 
 - **Official Source**: Automatically scrapes the latest reflection from the official [aa.org](https://www.aa.org/daily-reflections) website every morning.
