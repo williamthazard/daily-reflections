@@ -109,7 +109,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const scTrackUrl = `https://soundcloud.com/tracks/${trackId}${secretToken ? `/s-${secretToken}` : ''}`;
+  const scTrackUrl = "https://soundcloud.com/aaws";
   const initialUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
 
   return (
