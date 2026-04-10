@@ -185,12 +185,13 @@ function App() {
       return () => mediaQuery.removeEventListener('change', listener);
     };
 
+    localStorage.setItem('theme', theme);
+
     if (theme === 'system') {
       return handleSystemTheme();
     } else {
       applyTheme(theme);
     }
-    localStorage.setItem('theme', theme);
   }, [theme]);
 
   // Data Loading
