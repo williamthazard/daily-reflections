@@ -78,8 +78,9 @@ async function scrapeDailyReflection() {
         throw new Error('Failed to extract valid reflection data from aa.org');
     }
 
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
+    // Get "today" in Eastern Time (AA.org's timezone)
+    const nyDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    const dateStr = nyDate; // en-CA format is YYYY-MM-DD
 
     const reflectionData = {
       date: dateStr,
