@@ -210,7 +210,15 @@ function App() {
       .then(data => {
         setIndex(data);
         const hashDate = window.location.hash.replace('#', '');
-        const targetDate = (hashDate && data.find((i: any) => i.date === hashDate)) ? hashDate : data[0]?.date;
+        
+        // Calculate "today" in Eastern Time to find the correct default
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+        const hasToday = data.find((i: any) => i.date === todayStr);
+        
+        const targetDate = (hashDate && data.find((i: any) => i.date === hashDate)) 
+          ? hashDate 
+          : (hasToday ? todayStr : data[0]?.date);
+          
         if (targetDate) loadReflection(targetDate);
         else setLoading(false);
       })
