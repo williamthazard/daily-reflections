@@ -113,7 +113,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
   const initialUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
 
   return (
-    <div className="mt-12 animate-fade-in relative">
+    <div className="animate-fade-in relative">
       <div className="flex items-center gap-6">
         <button 
           onClick={togglePlay}
@@ -284,7 +284,7 @@ function App() {
   const prevItem = currentIdx >= 0 && currentIdx < index.length - 1 ? index[currentIdx + 1] : null;
 
   const Nav = () => (
-    <nav className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-b border-stone-100 dark:border-stone-900 py-12 font-sans antialiased">
+    <nav className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-b border-stone-100 dark:border-stone-900 py-6 font-sans antialiased">
       {prevItem ? (
         <button onClick={() => loadReflection(prevItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">← previous</button>
       ) : <span className="opacity-20 select-none">← previous</span>}
@@ -435,11 +435,10 @@ function App() {
                     <span className="text-xs font-mono text-stone-400 tracking-[0.3em] block text-center mb-10 uppercase">{formatDate(currentReflection.date)}</span>
                     <h2 className="text-3xl md:text-4xl font-light tracking-widest mt-4 mb-12 text-center uppercase leading-snug text-stone-800 dark:text-stone-100">{currentReflection.title}</h2>
                     
-                    <div className="max-w-prose mx-auto w-full flex flex-col">
+                    <div className="max-w-prose mx-auto w-full flex flex-col space-y-12">
                       {currentReflection.quote && (
-                        <blockquote className="text-xl italic text-stone-600 dark:text-stone-400 leading-relaxed font-serif border-l-2 border-stone-100 dark:border-stone-900 pl-8 mb-12" dangerouslySetInnerHTML={{ __html: currentReflection.quote }} />
+                        <blockquote className="text-xl italic text-stone-600 dark:text-stone-400 leading-relaxed font-serif border-l-2 border-stone-100 dark:border-stone-900 pl-8" dangerouslySetInnerHTML={{ __html: currentReflection.quote }} />
                       )}
-                      
                       <div className="space-y-10 text-lg leading-[1.9] text-stone-800 dark:text-stone-200 font-serif antialiased text-justify">
                         {currentReflection.body.split('\n\n').map((p, i) => <p key={i} className="first-letter:text-2xl dark:first-letter:text-stone-100">{p}</p>)}
                       </div>
@@ -451,9 +450,7 @@ function App() {
                         />
                       )}
                       
-                      <div className="mt-12">
-                        <Nav />
-                      </div>
+                      <Nav />
                     </div>
                   </div>
                 </article>
