@@ -129,37 +129,39 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
 
   return (
     <div className="animate-fade-in relative">
-      <div className="flex items-center gap-6">
+      <div className="flex items-start gap-6">
         <button 
           onClick={togglePlay}
-          className="w-12 h-12 flex items-center justify-center rounded-full bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800 transition-all shadow-sm relative z-10"
+          className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800 transition-all shadow-sm relative z-10"
           aria-label={isPlaying ? 'Pause' : 'Play'}
         >
           {isPlaying ? <IoPauseOutline size={24} /> : <IoPlayOutline size={24} className="ml-1" />}
         </button>
         
-        <div className="flex-grow space-y-2">
-          <div 
-            ref={progressBarRef}
-            onClick={handleSeek}
-            className="h-2 w-full bg-stone-100 dark:bg-stone-900 rounded-full overflow-hidden relative cursor-pointer group"
-          >
-            <div className="absolute inset-0 bg-stone-200 dark:bg-stone-800 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="flex-grow pt-5">
+          <div className="space-y-3">
             <div 
-              className="absolute h-full bg-stone-400 dark:bg-stone-600 rounded-full z-10"
-              style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%` }}
-            />
-          </div>
-          <div className="flex justify-between items-baseline text-[10px] uppercase tracking-widest text-stone-400 font-mono">
-            <span>{formatTime(progress)} / {formatTime(duration)}</span>
-            <a 
-              href={scTrackUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="opacity-50 text-[9px] hover:text-stone-600 dark:hover:text-stone-300 transition-colors border-b border-transparent hover:border-stone-400"
+              ref={progressBarRef}
+              onClick={handleSeek}
+              className="h-2 w-full bg-stone-100 dark:bg-stone-900 rounded-full overflow-hidden relative cursor-pointer group"
             >
-              Audio via SoundCloud
-            </a>
+              <div className="absolute inset-0 bg-stone-200 dark:bg-stone-800 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div 
+                className="absolute h-full bg-stone-400 dark:bg-stone-600 rounded-full z-10"
+                style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%` }}
+              />
+            </div>
+            <div className="flex justify-between items-baseline text-[10px] uppercase tracking-widest text-stone-400 font-mono">
+              <span>{formatTime(progress)} / {formatTime(duration)}</span>
+              <a 
+                href={scTrackUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="opacity-50 text-[9px] hover:text-stone-600 dark:hover:text-stone-300 transition-colors border-b border-transparent hover:border-stone-400"
+              >
+                Audio via SoundCloud
+              </a>
+            </div>
           </div>
         </div>
       <iframe
