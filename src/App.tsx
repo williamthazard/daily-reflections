@@ -113,7 +113,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
   const initialUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
 
   return (
-    <div className="mt-12 pt-12 border-t border-stone-100 dark:border-stone-900 animate-fade-in relative">
+    <div className="mt-12 animate-fade-in relative">
       <div className="flex items-center gap-6">
         <button 
           onClick={togglePlay}
@@ -284,7 +284,7 @@ function App() {
   const prevItem = currentIdx >= 0 && currentIdx < index.length - 1 ? index[currentIdx + 1] : null;
 
   const Nav = () => (
-    <nav className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-y border-stone-100 dark:border-stone-900 py-12 font-sans antialiased">
+    <nav className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-b border-stone-100 dark:border-stone-900 py-12 font-sans antialiased">
       {prevItem ? (
         <button onClick={() => loadReflection(prevItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">← previous</button>
       ) : <span className="opacity-20 select-none">← previous</span>}
