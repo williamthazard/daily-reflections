@@ -278,11 +278,11 @@ function App() {
   const Nav = () => (
     <nav className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-y border-stone-100 dark:border-stone-900 py-12 font-sans antialiased">
       {prevItem ? (
-        <button onClick={() => loadReflection(prevItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">← previous day</button>
-      ) : <span className="opacity-20 select-none">← previous day</span>}
+        <button onClick={() => loadReflection(prevItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">← previous</button>
+      ) : <span className="opacity-20 select-none">← previous</span>}
       {nextItem ? (
-        <button onClick={() => loadReflection(nextItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">next day →</button>
-      ) : <span className="opacity-20 select-none">next day →</span>}
+        <button onClick={() => loadReflection(nextItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">next →</button>
+      ) : <span className="opacity-20 select-none">next →</span>}
     </nav>
   );
 
