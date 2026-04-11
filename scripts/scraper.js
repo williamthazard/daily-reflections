@@ -1,94 +1,66 @@
 import fs from 'fs';
 import path from 'path';
-import puppeteer from 'puppeteer';
+import * as cheerio from 'cheerio';
 
 const DATA_DIR = path.join(process.cwd(), 'public', 'data');
 
 async function scrapeDailyReflection() {
-  console.log('Launching headless browser to scrape aa.org...');
+  console.log('Fetching reflection from AA API (Deterministic)...');
   
-  const browser = await puppeteer.launch({ 
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'] 
-  });
-  
+  // Get "today" in Eastern Time (AA.orgs home timezone)
+  const nyDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  const [year, month, day] = nyDate.split('-');
+  const dateStr = nyDate;
+
+  console.log(`Targeting Date: ${dateStr} (ET)`);
+
   try {
-    const page = await browser.newPage();
+    const apiUrl = `https://www.aa.org/api/reflections/${month}/${day}`;
+    console.log(`Connecting to: ${apiUrl}`);
     
-    // Use a realistic user agent to avoid bot detection
-    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     
-    console.log('Navigating to https://www.aa.org/daily-reflections...');
-    await page.goto('https://www.aa.org/daily-reflections', { 
-      waitUntil: 'networkidle2',
-      timeout: 60000 
-    });
+    const apiData = await res.json();
+    if (!apiData || !apiData.data) throw new Error('Invalid API data received');
 
-    // Wait for the main reflection article to appear
-    await page.waitForSelector('article.node--type-daily-reflection', { timeout: 10000 });
+    // Parse fields using cheerio
+    const $data = cheerio.load(apiData.data || '');
+    const $media = cheerio.load(apiData.dataMedia || '');
 
-    const data = await page.evaluate(() => {
-      const article = document.querySelector('article.node--type-daily-reflection');
-      if (!article) return null;
+    const title = $data('.field--name-title').text()?.trim() || 'Daily Reflection';
+    
+    // Extract quote and source from field-teaser
+    const quote = $data('.field--name-field-teaser p:nth-child(1)').html()?.trim() || '';
+    const source = $data('.field--name-field-teaser p:nth-child(2)').text()?.trim() || '';
 
-      const title = article.querySelector('.field--name-title')?.textContent?.trim() || '';
-      
-      // Date is often the first div child of the article
-      const dateText = article.querySelector('div:not([class])')?.textContent?.trim() || '';
-      
-      // The teaser usually contains the quote and source
-      const teaser = article.querySelector('.field--name-field-teaser');
-      const quote = teaser?.querySelector('p:nth-child(1)')?.innerHTML?.trim() || '';
-      const source = teaser?.querySelector('p:nth-child(2)')?.textContent?.trim() || '';
+    // Extract body text
+    const bodyParas = $data('.field--name-body p').map((_, el) => $data(el).text().trim()).get();
+    const bodyText = bodyParas
+      .filter(text => text)
+      .slice(2) // Usually the first 2 are the quote/source repeat
+      .join('\n\n');
 
-      // The body contains the actual reflection text
-      const bodyParas = Array.from(article.querySelectorAll('.field--name-body p'));
-      const bodyText = bodyParas
-        .slice(2) // Skip repeated quote/source
-        .map(p => p.textContent?.trim())
-        .filter(text => text && text.length > 0)
-        .join('\n\n');
-
-      // Extract SoundCloud Audio if present
-      // Note: The audio player is often a sibling to the article, not a child
-      const scIframe = document.querySelector('iframe[src*="soundcloud.com"]');
-      let audioTrackId = null;
-      let audioSecretToken = null;
-      
-      if (scIframe) {
-        const src = decodeURIComponent(scIframe.src);
-        const trackMatch = src.match(/tracks\/(\d+)/);
-        const tokenMatch = src.match(/secret_token=([^&]+)/);
-        if (trackMatch) audioTrackId = trackMatch[1];
-        if (tokenMatch) audioSecretToken = tokenMatch[1];
-      }
-
-      return {
-        title,
-        dateText,
-        quote,
-        source,
-        body: bodyText,
-        audioTrackId,
-        audioSecretToken
-      };
-    });
-
-    if (!data || !data.title || data.title === 'Daily Reflections') {
-        throw new Error('Failed to extract valid reflection data from aa.org');
+    // Extract SoundCloud metadata
+    const scSrc = $media('iframe[src*="soundcloud.com"]').attr('src') || '';
+    let audioTrackId = null;
+    let audioSecretToken = null;
+    
+    if (scSrc) {
+      const decodedSrc = decodeURIComponent(scSrc);
+      const trackMatch = decodedSrc.match(/tracks\/(\d+)/);
+      const tokenMatch = decodedSrc.match(/secret_token=([^&]+)/);
+      if (trackMatch) audioTrackId = trackMatch[1];
+      if (tokenMatch) audioSecretToken = tokenMatch[1];
     }
-
-    // Get "today" in Eastern Time (AA.org's timezone)
-    const nyDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-    const dateStr = nyDate; // en-CA format is YYYY-MM-DD
 
     const reflectionData = {
       date: dateStr,
-      title: data.title,
-      quote: data.quote + (data.source ? `<br/><small>— ${data.source}</small>` : ''),
-      body: data.body,
-      audioTrackId: data.audioTrackId,
-      audioSecretToken: data.audioSecretToken
+      title,
+      quote: quote + (source ? `<br/><small>— ${source}</small>` : ''),
+      body: bodyText,
+      audioTrackId,
+      audioSecretToken
     };
 
     if (!fs.existsSync(DATA_DIR)) {
@@ -97,32 +69,32 @@ async function scrapeDailyReflection() {
 
     const filePath = path.join(DATA_DIR, `${dateStr}.json`);
     fs.writeFileSync(filePath, JSON.stringify(reflectionData, null, 2));
+    console.log(`Successfully saved reflection to ${filePath}`);
 
-    console.log(`Successfully saved reflection from aa.org to ${filePath}`);
-    updateIndex(reflectionData, dateStr);
+    // Update index.json
+    const indexPath = path.join(DATA_DIR, 'index.json');
+    let index = [];
+    if (fs.existsSync(indexPath)) {
+      index = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+    }
+
+    // Replace or add the entry
+    const existingIndex = index.findIndex(e => e.date === dateStr);
+    const entry = { date: dateStr, title };
+    if (existingIndex > -1) {
+      index[existingIndex] = entry;
+    } else {
+      index.unshift(entry);
+    }
+
+    // Sort descending by date
+    index.sort((a, b) => b.date.localeCompare(a.date));
+    fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
+    console.log('Index updated.');
 
   } catch (error) {
-    console.error('Error scraping aa.org:', error);
+    console.error('Scraping failed:', error.message);
     process.exit(1);
-  } finally {
-    await browser.close();
-  }
-}
-
-function updateIndex(reflectionData, dateStr) {
-  const indexPath = path.join(DATA_DIR, 'index.json');
-  let index = [];
-  if (fs.existsSync(indexPath)) {
-    index = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
-  }
-  
-  if (!index.find(r => r.date === dateStr)) {
-    index.push({
-      date: dateStr,
-      title: reflectionData.title
-    });
-    index.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
   }
 }
 
