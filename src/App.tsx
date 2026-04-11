@@ -454,7 +454,7 @@ function App() {
           )}
         </main>
 
-        <footer className="mt-16 border-t border-stone-100 dark:border-stone-900 pt-10 text-center text-[10px] text-stone-400 space-y-3 tracking-widest uppercase pb-12">
+        <footer className="mt-12 text-center text-[10px] text-stone-400 space-y-3 tracking-widest uppercase pb-12">
           <p>From the book <em>Daily Reflections</em>.</p>
           <p>Copyright © 1990 by <a href="https://www.aa.org/" className="hover:text-stone-600 dark:hover:text-stone-300 border-b border-stone-200 dark:border-stone-800 transition-all">Alcoholics Anonymous World Services, Inc</a>.</p>
         </footer>
