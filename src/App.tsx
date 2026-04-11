@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { IoCalendarOutline, IoCloseOutline, IoPlayOutline, IoPauseOutline } from 'react-icons/io5';
+import { IoCalendarOutline, IoCloseOutline, IoPlayOutline, IoPauseOutline, IoDesktopOutline, IoSunnyOutline, IoMoonOutline, IoLogoRss } from 'react-icons/io5';
 
 type ReflectionData = {
   date: string;
@@ -168,6 +168,8 @@ function App() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('theme') as Theme) || 'system');
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
 
   // Theme Management
   useEffect(() => {
@@ -227,6 +229,19 @@ function App() {
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
+
+  // Handle outside clicks for theme menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
+        setShowThemeMenu(false);
+      }
+    };
+    if (showThemeMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showThemeMenu]);
 
   const loadReflection = (dateStr: string) => {
     setLoading(true);
@@ -328,21 +343,60 @@ function App() {
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors duration-500 selection:bg-stone-200 dark:selection:bg-stone-800 font-sans">
       <div className="py-12 md:py-16 px-6 md:px-8 max-w-3xl mx-auto flex flex-col">
-        <header className="flex flex-col gap-10 mb-20 md:mb-24 animate-fade-in">
-          <div className="flex justify-between items-center">
-            <h1 className="text-lg md:text-xl tracking-[0.2em] text-stone-400 font-light cursor-pointer select-none uppercase" onClick={() => (loadReflection(index[0]?.date), setShowCalendar(false))}>daily reflections</h1>
+        <header className="flex justify-between items-center mb-16 md:mb-20 animate-fade-in relative z-50">
+          <h1 className="text-lg md:text-xl tracking-[0.2em] text-stone-400 font-light cursor-pointer select-none uppercase" onClick={() => (loadReflection(index[0]?.date), setShowCalendar(false))}>daily reflections</h1>
+          
+          <div className="flex items-center gap-1 md:gap-2">
+            {/* RSS Icon */}
+            <a 
+              href={`${import.meta.env.BASE_URL}rss.xml`} 
+              className="p-2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+              title="RSS Feed"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <IoLogoRss size={20} />
+            </a>
+
+            {/* Theme Dropdown */}
+            <div className="relative" ref={themeMenuRef}>
+              <button 
+                onClick={() => setShowThemeMenu(!showThemeMenu)}
+                className={`p-2 transition-colors ${showThemeMenu ? 'text-stone-900 dark:text-stone-100' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}
+                aria-label="Change theme"
+              >
+                {theme === 'system' ? <IoDesktopOutline size={22} /> : theme === 'light' ? <IoSunnyOutline size={22} /> : <IoMoonOutline size={22} />}
+              </button>
+
+              {showThemeMenu && (
+                <div className="absolute right-0 mt-2 w-32 py-2 bg-white dark:bg-stone-900 border border-stone-100 dark:border-stone-800 rounded-lg shadow-xl animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+                  {(['system', 'light', 'dark'] as const).map(t => (
+                    <button
+                      key={t}
+                      onClick={() => {
+                        setTheme(t);
+                        setShowThemeMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-[10px] uppercase tracking-[0.2em] transition-colors ${theme === t ? 'text-stone-900 dark:text-stone-100 font-bold bg-stone-50 dark:bg-stone-800/50' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800/30'}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Calendar Icon */}
             <button 
-              onClick={() => setShowCalendar(!showCalendar)} 
-              className={`transition-colors p-2 -mr-2 ${showCalendar ? 'text-stone-900 dark:text-stone-100' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}
+              onClick={() => {
+                setShowCalendar(!showCalendar);
+                setShowThemeMenu(false);
+              }} 
+              className={`transition-colors p-2 ${showCalendar ? 'text-stone-900 dark:text-stone-100' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}
               aria-label={showCalendar ? 'Close calendar' : 'Open calendar'}
             >
               {showCalendar ? <IoCloseOutline size={24} /> : <IoCalendarOutline size={22} />}
             </button>
-          </div>
-          <div className="flex justify-center gap-6 md:gap-8">
-            {(['system', 'light', 'dark'] as const).map(t => (
-              <button key={t} onClick={() => setTheme(t)} className={`text-[10px] uppercase tracking-[0.2em] transition-colors ${theme === t ? 'text-stone-800 dark:text-stone-200 font-bold underline underline-offset-4 decoration-stone-300 dark:decoration-stone-700' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}>{t}</button>
-            ))}
           </div>
         </header>
 
@@ -400,10 +454,9 @@ function App() {
           )}
         </main>
 
-        <footer className="mt-24 border-t border-stone-100 dark:border-stone-900 pt-10 text-center text-[10px] text-stone-400 space-y-3 tracking-widest uppercase pb-12">
+        <footer className="mt-16 border-t border-stone-100 dark:border-stone-900 pt-10 text-center text-[10px] text-stone-400 space-y-3 tracking-widest uppercase pb-12">
           <p>From the book <em>Daily Reflections</em>.</p>
           <p>Copyright © 1990 by <a href="https://www.aa.org/" className="hover:text-stone-600 dark:hover:text-stone-300 border-b border-stone-200 dark:border-stone-800 transition-all">Alcoholics Anonymous World Services, Inc</a>.</p>
-          <div className="pt-4"><a href={`${import.meta.env.BASE_URL}rss.xml`} className="hover:text-stone-600 dark:hover:text-stone-300 opacity-60 transition-opacity">subscribe via RSS</a></div>
         </footer>
       </div>
     </div>
