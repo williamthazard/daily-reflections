@@ -276,7 +276,7 @@ function App() {
   const prevItem = currentIdx >= 0 && currentIdx < index.length - 1 ? index[currentIdx + 1] : null;
 
   const Nav = () => (
-    <nav className="flex justify-between items-center mb-12 text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-y border-stone-100 dark:border-stone-900 py-4 font-sans antialiased">
+    <nav className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-y border-stone-100 dark:border-stone-900 py-12 font-sans antialiased">
       {prevItem ? (
         <button onClick={() => loadReflection(prevItem.date)} className="hover:text-stone-900 dark:hover:text-stone-200 transition-colors">← previous day</button>
       ) : <span className="opacity-20 select-none">← previous day</span>}
