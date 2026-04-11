@@ -146,11 +146,11 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
           >
             <div className="absolute inset-0 bg-stone-200 dark:bg-stone-800 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div 
-              className="absolute h-full bg-stone-400 dark:bg-stone-600 transition-all duration-300 rounded-full z-10"
+              className="absolute h-full bg-stone-400 dark:bg-stone-600 rounded-full z-10"
               style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%` }}
             />
           </div>
-          <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-stone-400 font-mono">
+          <div className="flex justify-between items-baseline text-[10px] uppercase tracking-widest text-stone-400 font-mono">
             <span>{formatTime(progress)} / {formatTime(duration)}</span>
             <a 
               href={scTrackUrl} 
