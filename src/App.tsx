@@ -205,7 +205,7 @@ function App() {
 
   // Data Loading
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/index.json`)
+    fetch(`${import.meta.env.BASE_URL}data/index.json?v=${Date.now()}`)
       .then(res => res.ok ? res.json() : Promise.reject('No data'))
       .then(data => {
         setIndex(data);
@@ -254,7 +254,7 @@ function App() {
   const loadReflection = (dateStr: string) => {
     setLoading(true);
     setError(''); // Clear error on new load
-    fetch(`${import.meta.env.BASE_URL}data/${dateStr}.json`)
+    fetch(`${import.meta.env.BASE_URL}data/${dateStr}.json?v=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
         setCurrentReflection(data);
