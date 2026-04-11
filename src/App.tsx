@@ -24,6 +24,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
   const [duration, setDuration] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const widgetRef = useRef<any>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
   // Initialize widget once
   useEffect(() => {
@@ -43,7 +44,10 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
       });
     };
     const onPause = () => setIsPlaying(false);
-    const onFinish = () => setIsPlaying(false);
+    const onFinish = () => {
+      setIsPlaying(false);
+      setProgress(duration); // Snap to end
+    };
     const onProgress = (data: { currentPosition: number }) => {
       setProgress(data.currentPosition);
       // Fallback: if duration is still 0, try to get it again
@@ -101,6 +105,17 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
       widgetRef.current.toggle();
     }
   };
+  
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (progressBarRef.current && widgetRef.current && duration > 0) {
+      const rect = progressBarRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = Math.max(0, Math.min(1, x / rect.width));
+      const seekMs = percentage * duration;
+      widgetRef.current.seekTo(seekMs);
+      setProgress(seekMs);
+    }
+  };
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -124,9 +139,14 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
         </button>
         
         <div className="flex-grow space-y-2">
-          <div className="h-1 w-full bg-stone-100 dark:bg-stone-900 rounded-full overflow-hidden relative">
+          <div 
+            ref={progressBarRef}
+            onClick={handleSeek}
+            className="h-2 w-full bg-stone-100 dark:bg-stone-900 rounded-full overflow-hidden relative cursor-pointer group"
+          >
+            <div className="absolute inset-0 bg-stone-200 dark:bg-stone-800 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div 
-              className="absolute h-full bg-stone-400 dark:bg-stone-600 transition-all duration-300 rounded-full"
+              className="absolute h-full bg-stone-400 dark:bg-stone-600 transition-all duration-300 rounded-full z-10"
               style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%` }}
             />
           </div>
