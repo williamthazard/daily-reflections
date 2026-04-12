@@ -52,7 +52,7 @@ function generateRSS() {
         description: content,
         url: `${SITE_URL}/#${entry.date}`, // we will use hash routing since it's GH pages
         guid: entry.date,
-        date: new Date(entry.date)
+        date: new Date(`${entry.date}T06:00:00Z`)
       });
     }
   });
