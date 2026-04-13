@@ -63,7 +63,7 @@ function App() {
 
       let meta = document.querySelector('meta[name="theme-color"]');
       if (meta) {
-        meta.setAttribute('content', t === 'dark' ? '#0c0a09' : '#fafaf9');
+        meta.setAttribute('content', t === 'dark' ? '#000000' : '#fafaf9');
       }
     };
 

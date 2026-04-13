@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 font-sans antialiased transition-colors duration-500 overflow-x-hidden;
+  @apply bg-stone-50 dark:bg-black text-stone-800 dark:text-stone-200 font-sans antialiased transition-colors duration-500 overflow-x-hidden;
   color-scheme: light;
 }
 
@@ -13,7 +13,7 @@ body {
 
 /* Ensure overscroll matches theme */
 html {
-  @apply bg-stone-50 dark:bg-stone-950;
+  @apply bg-stone-50 dark:bg-black;
 }
 
 .dark {
@@ -39,7 +39,7 @@ html {
 /* SoundCloud widget dark mode
    SC doesn't expose a dark-mode param, so we use a tuned CSS filter
    applied conditionally (only under .dark) to approximate the stone palette.
-   invert(0.93) ≈ stone-950 background; hue-rotate preserves accent colors. */
+    invert(1) ≈ true black background; hue-rotate preserves accent colors. */
 .dark .sc-player iframe {
-  filter: invert(0.93) hue-rotate(180deg);
+  filter: invert(1) hue-rotate(180deg);
 }
