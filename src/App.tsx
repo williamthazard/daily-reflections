@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { IoCalendarOutline, IoCloseOutline, IoDesktopOutline, IoSunnyOutline, IoMoonOutline, IoLogoRss } from 'react-icons/io5';
 
 type ReflectionData = {
@@ -41,6 +41,81 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
     </div>
   );
 };
+const Nav = memo(({ prevItem, nextItem, loadReflection }: {
+  prevItem: ReflectionIndexItem | null,
+  nextItem: ReflectionIndexItem | null,
+  loadReflection: (date: string) => void
+}) => (
+  <nav className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-b border-stone-100 dark:border-stone-900 py-6 font-sans antialiased">
+    {prevItem ? (
+      <button onClick={() => loadReflection(prevItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">← previous</button>
+    ) : <span className="opacity-20 select-none">← previous</span>}
+    {nextItem ? (
+      <button onClick={() => loadReflection(nextItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">next →</button>
+    ) : <span className="opacity-20 select-none">next →</span>}
+  </nav>
+));
+
+const CalendarView = memo(({ index, viewDate, setViewDate, currentReflection, loadReflection, setShowCalendar }: {
+  index: ReflectionIndexItem[],
+  viewDate: Date,
+  setViewDate: (date: Date) => void,
+  currentReflection: ReflectionData | null,
+  loadReflection: (date: string) => void,
+  setShowCalendar: (show: boolean) => void
+}) => {
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
+  const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
+
+  const dateCells = [];
+  for (let i = 0; i < firstDay; i++) dateCells.push(<div key={`empty-${i}`} className="h-12 w-full" />);
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const hasReflection = index.find(item => item.date === dateStr);
+    const isSelected = currentReflection?.date === dateStr;
+
+    dateCells.push(
+      <div
+        key={d}
+        onClick={() => hasReflection && (loadReflection(dateStr), setShowCalendar(false))}
+        className={`h-12 w-full flex items-center justify-center text-sm cursor-pointer transition-all border border-transparent rounded
+          ${hasReflection ? 'bg-stone-100 dark:bg-stone-900/50 font-medium hover:bg-stone-200 dark:hover:bg-stone-900 text-stone-900 dark:text-stone-100 border-stone-200 dark:border-stone-800' : 'text-stone-300 dark:text-stone-800 pointer-events-none'}
+          ${isSelected ? 'ring-2 ring-stone-400 dark:ring-stone-500 ring-inset' : ''}
+        `}
+      >
+        {d}
+      </div>
+    );
+  }
+
+  return (
+    <div className="animate-fade-in-simple">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-light tracking-wide text-stone-600 dark:text-stone-400">{monthNames[viewDate.getMonth()]} {viewDate.getFullYear()}</h2>
+        <div className="flex gap-4">
+          <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="text-stone-400 hover:text-stone-600">prev</button>
+          <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="text-stone-400 hover:text-stone-600">next</button>
+        </div>
+      </div>
+      <div className="grid grid-cols-7 gap-1 mb-12">
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => <div key={`${day}-${i}`} className="text-center text-[10px] uppercase tracking-widest text-stone-400 font-medium mb-2">{day}</div>)}
+        {dateCells}
+      </div>
+      <div className="mt-12 pt-8 border-t border-stone-100 dark:border-stone-800">
+        <h3 className="text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-6 text-center">Recent Index</h3>
+        <div className="space-y-3">
+          {index.slice(0, 7).map(item => (
+            <div key={item.date} onClick={() => (loadReflection(item.date), setShowCalendar(false))} className="cursor-pointer group text-sm flex justify-between hover:text-stone-900 dark:hover:text-stone-100 text-stone-500 dark:text-stone-400 border-b border-stone-50 dark:border-stone-900 pb-1 transition-colors">
+              <span className="truncate mr-4">{item.title}</span>
+              <span className="font-mono text-[10px] opacity-40 shrink-0">{item.date}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});
 
 function App() {
   const [index, setIndex] = useState<ReflectionIndexItem[]>([]);
@@ -165,70 +240,7 @@ function App() {
   const nextItem = currentIdx > 0 ? index[currentIdx - 1] : null;
   const prevItem = currentIdx >= 0 && currentIdx < index.length - 1 ? index[currentIdx + 1] : null;
 
-  const Nav = () => (
-    <nav className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 border-b border-stone-100 dark:border-stone-900 py-6 font-sans antialiased">
-      {prevItem ? (
-        <button onClick={() => loadReflection(prevItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">← previous</button>
-      ) : <span className="opacity-20 select-none">← previous</span>}
-      {nextItem ? (
-        <button onClick={() => loadReflection(nextItem.date)} className="uppercase hover:text-stone-900 dark:hover:text-stone-200 transition-colors">next →</button>
-      ) : <span className="opacity-20 select-none">next →</span>}
-    </nav>
-  );
 
-  const CalendarView = () => {
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
-    const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
-
-    const dateCells = [];
-    for (let i = 0; i < firstDay; i++) dateCells.push(<div key={`empty-${i}`} className="h-12 w-full" />);
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const hasReflection = index.find(item => item.date === dateStr);
-      const isSelected = currentReflection?.date === dateStr;
-
-      dateCells.push(
-        <div
-          key={d}
-          onClick={() => hasReflection && (loadReflection(dateStr), setShowCalendar(false))}
-          className={`h-12 w-full flex items-center justify-center text-sm cursor-pointer transition-all border border-transparent rounded
-            ${hasReflection ? 'bg-stone-100 dark:bg-stone-900/50 font-medium hover:bg-stone-200 dark:hover:bg-stone-900 text-stone-900 dark:text-stone-100 border-stone-200 dark:border-stone-800' : 'text-stone-300 dark:text-stone-800 pointer-events-none'}
-            ${isSelected ? 'ring-2 ring-stone-400 dark:ring-stone-500 ring-inset' : ''}
-          `}
-        >
-          {d}
-        </div>
-      );
-    }
-
-    return (
-      <div className="animate-fade-in">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-light tracking-wide text-stone-600 dark:text-stone-400">{monthNames[viewDate.getMonth()]} {viewDate.getFullYear()}</h2>
-          <div className="flex gap-4">
-            <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="text-stone-400 hover:text-stone-600">prev</button>
-            <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="text-stone-400 hover:text-stone-600">next</button>
-          </div>
-        </div>
-        <div className="grid grid-cols-7 gap-1 mb-12">
-          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => <div key={`${day}-${i}`} className="text-center text-[10px] uppercase tracking-widest text-stone-400 font-medium mb-2">{day}</div>)}
-          {dateCells}
-        </div>
-        <div className="mt-12 pt-8 border-t border-stone-100 dark:border-stone-800">
-          <h3 className="text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-6 text-center">Recent Index</h3>
-          <div className="space-y-3">
-            {index.slice(0, 7).map(item => (
-              <div key={item.date} onClick={() => (loadReflection(item.date), setShowCalendar(false))} className="cursor-pointer group text-sm flex justify-between hover:text-stone-900 dark:hover:text-stone-100 text-stone-500 dark:text-stone-400 border-b border-stone-50 dark:border-stone-900 pb-1 transition-colors">
-                <span className="truncate mr-4">{item.title}</span>
-                <span className="font-mono text-[10px] opacity-40 shrink-0">{item.date}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors duration-500 selection:bg-stone-200 dark:selection:bg-stone-800 font-sans">
@@ -299,7 +311,14 @@ function App() {
             <>
               {/* Calendar View - Persistent but hidden when not active */}
               <div className={showCalendar ? 'block' : 'hidden'}>
-                <CalendarView />
+                <CalendarView 
+                  index={index}
+                  viewDate={viewDate}
+                  setViewDate={setViewDate}
+                  currentReflection={currentReflection}
+                  loadReflection={loadReflection}
+                  setShowCalendar={setShowCalendar}
+                />
               </div>
 
               {/* Reflection View - Persistent but hidden when calendar is active */}
@@ -333,7 +352,7 @@ function App() {
                         />
                       )}
 
-                      <Nav />
+                      <Nav prevItem={prevItem} nextItem={nextItem} loadReflection={loadReflection} />
                     </div>
                   </div>
                 </article>
