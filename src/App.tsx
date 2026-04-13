@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { IoCalendarOutline, IoCloseOutline, IoDesktopOutline, IoSunnyOutline, IoMoonOutline, IoLogoRss } from 'react-icons/io5';
 
 type ReflectionData = {
@@ -25,7 +25,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
   const src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${tokenParam}&auto_play=false&show_artwork=false&show_user=false&show_comments=false&show_reposts=false&show_teaser=false&buying=false&sharing=false&download=false&show_playcount=false&hide_related=true&color=a8a29e`;
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in-simple">
       <div className="sc-player rounded-full overflow-hidden border border-stone-200 dark:border-stone-800 p-2">
         <iframe
           width="100%"
@@ -245,7 +245,7 @@ function App() {
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors duration-500 selection:bg-stone-200 dark:selection:bg-stone-800 font-sans">
       <div className="py-12 md:py-16 px-6 md:px-8 max-w-3xl mx-auto flex flex-col">
-        <header className="flex justify-between items-center mb-16 md:mb-20 animate-fade-in relative z-50">
+        <header className="flex justify-between items-center mb-16 md:mb-20 animate-fade-in-simple relative z-50">
           <h1 className="text-lg md:text-xl tracking-[0.2em] text-stone-400 font-light cursor-pointer select-none uppercase" onClick={() => (loadReflection(index[0]?.date), setShowCalendar(false))}>daily reflections</h1>
 
           <div className="flex items-center gap-1 md:gap-2">
