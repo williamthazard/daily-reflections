@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { IoCalendarOutline, IoCloseOutline, IoPlayOutline, IoPauseOutline, IoDesktopOutline, IoSunnyOutline, IoMoonOutline, IoLogoRss } from 'react-icons/io5';
+import { IoCalendarOutline, IoCloseOutline, IoDesktopOutline, IoSunnyOutline, IoMoonOutline, IoLogoRss } from 'react-icons/io5';
 
 type ReflectionData = {
   date: string;
@@ -17,166 +17,36 @@ type ReflectionIndexItem = {
 
 type Theme = 'light' | 'dark' | 'system';
 
-// Minimalist Audio Player Component
+// Visible SoundCloud widget — styled via URL parameters, dark mode via CSS.
+// Users interact directly with the native SC controls, fixing the mobile
+// triple-tap play bug that occurred with our old hidden-iframe approach.
 const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: string | null }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const widgetRef = useRef<any>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-
-  // Initialize widget once
-  useEffect(() => {
-    if (!iframeRef.current || !(window as any).SC) return;
-    
-    const widget = (window as any).SC.Widget(iframeRef.current);
-    widgetRef.current = widget;
-
-    const onReady = () => {
-      widget.getDuration((d: number) => setDuration(d));
-    };
-    const onPlay = () => {
-      setIsPlaying(true);
-      // Fallback: fetch duration if still 0
-      widget.getDuration((d: number) => {
-        if (d) setDuration(d);
-      });
-    };
-    const onPause = () => setIsPlaying(false);
-    const onFinish = () => {
-      setIsPlaying(false);
-      setProgress(duration); // Snap to end
-    };
-    const onProgress = (data: { currentPosition: number }) => {
-      setProgress(data.currentPosition);
-      // Fallback: if duration is still 0, try to get it again
-      if (duration === 0) {
-        widget.getDuration((d: number) => {
-          if (d) setDuration(d);
-        });
-      }
-    };
-
-    widget.bind((window as any).SC.Widget.Events.READY, onReady);
-    widget.bind((window as any).SC.Widget.Events.PLAY, onPlay);
-    widget.bind((window as any).SC.Widget.Events.PAUSE, onPause);
-    widget.bind((window as any).SC.Widget.Events.FINISH, onFinish);
-    widget.bind((window as any).SC.Widget.Events.PLAY_PROGRESS, onProgress);
-
-    return () => {
-      if (widgetRef.current) {
-        widgetRef.current.unbind((window as any).SC.Widget.Events.READY);
-        widgetRef.current.unbind((window as any).SC.Widget.Events.PLAY);
-        widgetRef.current.unbind((window as any).SC.Widget.Events.PAUSE);
-        widgetRef.current.unbind((window as any).SC.Widget.Events.FINISH);
-        widgetRef.current.unbind((window as any).SC.Widget.Events.PLAY_PROGRESS);
-      }
-    };
-  }, []);
-
-  // Load new track when IDs change without unmounting
-  useEffect(() => {
-    if (widgetRef.current && trackId) {
-      const url = `https://api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}`;
-      
-      // Reset local state for new track
-      setProgress(0);
-      setDuration(0);
-
-      widgetRef.current.load(url, {
-        auto_play: false,
-        show_comments: false,
-        show_user: false,
-        show_reposts: false,
-        show_teaser: false,
-        callback: () => {
-          // Re-fetch duration once the load is complete
-          widgetRef.current.getDuration((d: number) => {
-            if (d) setDuration(d);
-          });
-        }
-      });
-    }
-  }, [trackId, secretToken]);
-
-  const togglePlay = () => {
-    if (widgetRef.current) {
-      widgetRef.current.toggle();
-    }
-  };
-  
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (progressBarRef.current && widgetRef.current && duration > 0) {
-      const rect = progressBarRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const percentage = Math.max(0, Math.min(1, x / rect.width));
-      const seekMs = percentage * duration;
-      widgetRef.current.seekTo(seekMs);
-      setProgress(seekMs);
-    }
-  };
-
-  const formatTime = (ms: number) => {
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const scTrackUrl = "https://soundcloud.com/aaws";
-  const initialUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${secretToken ? `%3Fsecret_token%3D${secretToken}` : ''}&auto_play=false&show_comments=false&show_user=false&show_reposts=false&show_teaser=false`;
+  const tokenParam = secretToken ? `%3Fsecret_token%3D${secretToken}` : '';
+  const src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${tokenParam}&auto_play=false&show_artwork=false&show_user=false&show_comments=false&show_reposts=false&show_teaser=false&buying=false&sharing=false&download=false&show_playcount=false&hide_related=true&color=a8a29e`;
 
   return (
-    <div className="animate-fade-in relative">
-      <div className="flex items-start gap-6">
-        <button 
-          onClick={togglePlay}
-          className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800 transition-all shadow-sm relative z-10"
-          aria-label={isPlaying ? 'Pause' : 'Play'}
+    <div className="animate-fade-in">
+      <div className="sc-player rounded-lg overflow-hidden border border-stone-200 dark:border-stone-800">
+        <iframe
+          width="100%"
+          height="20"
+          scrolling="no"
+          frameBorder="no"
+          allow="autoplay"
+          src={src}
+          title="Audio player"
+          className="block"
+        />
+      </div>
+      <div className="flex justify-end mt-3">
+        <a 
+          href="https://soundcloud.com/aaws" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-[9px] uppercase tracking-widest text-stone-400 opacity-50 hover:text-stone-600 dark:hover:text-stone-300 transition-colors border-b border-transparent hover:border-stone-400"
         >
-          {isPlaying ? <IoPauseOutline size={24} /> : <IoPlayOutline size={24} className="ml-1" />}
-        </button>
-        
-        <div className="flex-grow pt-5">
-          <div className="space-y-3">
-            <div 
-              ref={progressBarRef}
-              onClick={handleSeek}
-              className="h-2 w-full bg-stone-100 dark:bg-stone-900 rounded-full overflow-hidden relative cursor-pointer group"
-            >
-              <div className="absolute inset-0 bg-stone-200 dark:bg-stone-800 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div 
-                className="absolute h-full bg-stone-400 dark:bg-stone-600 rounded-full z-10"
-                style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%` }}
-              />
-            </div>
-            <div className="flex justify-between items-baseline text-[10px] uppercase tracking-widest text-stone-400 font-mono">
-              <span>{formatTime(progress)} / {formatTime(duration)}</span>
-              <a 
-                href={scTrackUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="opacity-50 text-[9px] hover:text-stone-600 dark:hover:text-stone-300 transition-colors border-b border-transparent hover:border-stone-400"
-              >
-                Audio via SoundCloud
-              </a>
-            </div>
-          </div>
-        </div>
-      <iframe
-        ref={iframeRef}
-        src={initialUrl}
-        style={{ 
-          position: 'absolute', 
-          width: '1px', 
-          height: '1px', 
-          opacity: 0, 
-          pointerEvents: 'none',
-          border: 'none'
-        }}
-        allow="autoplay"
-      />
+          Audio via SoundCloud
+        </a>
       </div>
     </div>
   );
@@ -467,6 +337,7 @@ function App() {
                       
                       {currentReflection.audioTrackId && (
                         <AudioPlayer 
+                          key={currentReflection.audioTrackId}
                           trackId={currentReflection.audioTrackId} 
                           secretToken={currentReflection.audioSecretToken} 
                         />

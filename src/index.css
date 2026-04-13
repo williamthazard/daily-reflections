@@ -35,3 +35,11 @@ html {
     to { opacity: 1; transform: translateY(0); }
   }
 }
+
+/* SoundCloud widget dark mode
+   SC doesn't expose a dark-mode param, so we use a tuned CSS filter
+   applied conditionally (only under .dark) to approximate the stone palette.
+   invert(0.93) ≈ stone-950 background; hue-rotate preserves accent colors. */
+.dark .sc-player iframe {
+  filter: invert(0.93) hue-rotate(180deg);
+}
