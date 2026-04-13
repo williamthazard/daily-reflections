@@ -43,7 +43,9 @@ function generateRSS() {
         const scUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${data.audioTrackId}${data.audioSecretToken ? `%3Fsecret_token%3D${data.audioSecretToken}` : ''}&auto_play=false&show_artwork=false&show_user=false&show_comments=false&show_reposts=false&show_teaser=false&buying=false&sharing=false&download=false&show_playcount=false&hide_related=true&color=a8a29e`;
         content += `
           <hr />
-          <iframe width="100%" height="20" scrolling="no" frameborder="no" allow="autoplay" src="${scUrl}"></iframe>
+          <div style="border: 1px solid #e7e5e4; border-radius: 9999px; overflow: hidden; padding: 8px;">
+            <iframe width="100%" height="20" scrolling="no" frameborder="no" allow="autoplay" src="${scUrl}" style="display: block;"></iframe>
+          </div>
         `;
       }
 
