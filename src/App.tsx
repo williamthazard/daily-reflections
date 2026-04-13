@@ -38,16 +38,6 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
           className="block"
         />
       </div>
-      <div className="flex justify-end mt-3">
-        <a 
-          href="https://soundcloud.com/aaws" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="text-[9px] uppercase tracking-widest text-stone-400 opacity-50 hover:text-stone-600 dark:hover:text-stone-300 transition-colors border-b border-transparent hover:border-stone-400"
-        >
-          Audio via SoundCloud
-        </a>
-      </div>
     </div>
   );
 };
