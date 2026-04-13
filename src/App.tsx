@@ -26,7 +26,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
 
   return (
     <div className="animate-fade-in">
-      <div className="sc-player rounded-lg overflow-hidden border border-stone-200 dark:border-stone-800">
+      <div className="sc-player rounded-full overflow-hidden border border-stone-200 dark:border-stone-800 p-2">
         <iframe
           width="100%"
           height="20"
@@ -60,7 +60,7 @@ function App() {
       root.classList.remove('light', 'dark');
       root.classList.add(t);
       root.style.colorScheme = t;
-      
+
       let meta = document.querySelector('meta[name="theme-color"]');
       if (meta) {
         meta.setAttribute('content', t === 'dark' ? '#0c0a09' : '#fafaf9');
@@ -70,7 +70,7 @@ function App() {
     const handleSystemTheme = () => {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       applyTheme(mediaQuery.matches ? 'dark' : 'light');
-      
+
       const listener = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light');
       mediaQuery.addEventListener('change', listener);
       return () => mediaQuery.removeEventListener('change', listener);
@@ -92,15 +92,15 @@ function App() {
       .then(data => {
         setIndex(data);
         const hashDate = window.location.hash.replace('#', '');
-        
+
         // Calculate "today" in Eastern Time to find the correct default
         const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
         const hasToday = data.find((i: any) => i.date === todayStr);
-        
-        const targetDate = (hashDate && data.find((i: any) => i.date === hashDate)) 
-          ? hashDate 
+
+        const targetDate = (hashDate && data.find((i: any) => i.date === hashDate))
+          ? hashDate
           : (hasToday ? todayStr : data[0]?.date);
-          
+
         if (targetDate) loadReflection(targetDate);
         else setLoading(false);
       })
@@ -180,17 +180,17 @@ function App() {
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
     const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
-    
+
     const dateCells = [];
     for (let i = 0; i < firstDay; i++) dateCells.push(<div key={`empty-${i}`} className="h-12 w-full" />);
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const hasReflection = index.find(item => item.date === dateStr);
       const isSelected = currentReflection?.date === dateStr;
-      
+
       dateCells.push(
-        <div 
-          key={d} 
+        <div
+          key={d}
           onClick={() => hasReflection && (loadReflection(dateStr), setShowCalendar(false))}
           className={`h-12 w-full flex items-center justify-center text-sm cursor-pointer transition-all border border-transparent rounded
             ${hasReflection ? 'bg-stone-100 dark:bg-stone-900/50 font-medium hover:bg-stone-200 dark:hover:bg-stone-900 text-stone-900 dark:text-stone-100 border-stone-200 dark:border-stone-800' : 'text-stone-300 dark:text-stone-800 pointer-events-none'}
@@ -212,7 +212,7 @@ function App() {
           </div>
         </div>
         <div className="grid grid-cols-7 gap-1 mb-12">
-          {['S','M','T','W','T','F','S'].map((day, i) => <div key={`${day}-${i}`} className="text-center text-[10px] uppercase tracking-widest text-stone-400 font-medium mb-2">{day}</div>)}
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => <div key={`${day}-${i}`} className="text-center text-[10px] uppercase tracking-widest text-stone-400 font-medium mb-2">{day}</div>)}
           {dateCells}
         </div>
         <div className="mt-12 pt-8 border-t border-stone-100 dark:border-stone-800">
@@ -235,11 +235,11 @@ function App() {
       <div className="py-12 md:py-16 px-6 md:px-8 max-w-3xl mx-auto flex flex-col">
         <header className="flex justify-between items-center mb-16 md:mb-20 animate-fade-in relative z-50">
           <h1 className="text-lg md:text-xl tracking-[0.2em] text-stone-400 font-light cursor-pointer select-none uppercase" onClick={() => (loadReflection(index[0]?.date), setShowCalendar(false))}>daily reflections</h1>
-          
+
           <div className="flex items-center gap-1 md:gap-2">
             {/* RSS Icon */}
-            <a 
-              href={`${import.meta.env.BASE_URL}rss.xml`} 
+            <a
+              href={`${import.meta.env.BASE_URL}rss.xml`}
               className="p-2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
               title="RSS Feed"
               target="_blank"
@@ -250,7 +250,7 @@ function App() {
 
             {/* Theme Dropdown */}
             <div className="relative" ref={themeMenuRef}>
-              <button 
+              <button
                 onClick={() => setShowThemeMenu(!showThemeMenu)}
                 className={`p-2 transition-colors ${showThemeMenu ? 'text-stone-900 dark:text-stone-100' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}
                 aria-label="Change theme"
@@ -277,11 +277,11 @@ function App() {
             </div>
 
             {/* Calendar Icon */}
-            <button 
+            <button
               onClick={() => {
                 setShowCalendar(!showCalendar);
                 setShowThemeMenu(false);
-              }} 
+              }}
               className={`transition-colors p-2 ${showCalendar ? 'text-stone-900 dark:text-stone-100' : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-300'}`}
               aria-label={showCalendar ? 'Close calendar' : 'Open calendar'}
             >
@@ -316,7 +316,7 @@ function App() {
                   <div className={`transition-all duration-500 flex flex-col ${(loading || error) ? 'opacity-20 blur-[1px]' : 'opacity-100'}`}>
                     <span className="text-xs font-mono text-stone-400 tracking-[0.3em] block text-center mb-10 uppercase">{formatDate(currentReflection.date)}</span>
                     <h2 className="text-3xl md:text-4xl font-light tracking-widest mt-4 mb-12 text-center uppercase leading-snug text-stone-800 dark:text-stone-100">{currentReflection.title}</h2>
-                    
+
                     <div className="max-w-prose mx-auto w-full flex flex-col space-y-12">
                       {currentReflection.quote && (
                         <blockquote className="text-xl italic text-stone-600 dark:text-stone-400 leading-relaxed font-serif border-l-2 border-stone-100 dark:border-stone-900 pl-8" dangerouslySetInnerHTML={{ __html: currentReflection.quote }} />
@@ -324,15 +324,15 @@ function App() {
                       <div className="space-y-10 text-lg leading-[1.9] text-stone-800 dark:text-stone-200 font-serif antialiased text-justify">
                         {currentReflection.body.split('\n\n').map((p, i) => <p key={i} className="first-letter:text-2xl dark:first-letter:text-stone-100">{p}</p>)}
                       </div>
-                      
+
                       {currentReflection.audioTrackId && (
-                        <AudioPlayer 
+                        <AudioPlayer
                           key={currentReflection.audioTrackId}
-                          trackId={currentReflection.audioTrackId} 
-                          secretToken={currentReflection.audioSecretToken} 
+                          trackId={currentReflection.audioTrackId}
+                          secretToken={currentReflection.audioSecretToken}
                         />
                       )}
-                      
+
                       <Nav />
                     </div>
                   </div>
