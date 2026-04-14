@@ -243,7 +243,7 @@ function App() {
 
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 transition-colors duration-500 selection:bg-stone-200 dark:selection:bg-stone-800 font-sans">
+    <div className="min-h-screen bg-stone-50 dark:bg-black transition-colors duration-500 selection:bg-stone-200 dark:selection:bg-stone-800 font-sans">
       <div className="py-12 md:py-16 px-6 md:px-8 max-w-3xl mx-auto flex flex-col">
         <header className="flex justify-between items-center mb-16 md:mb-20 animate-fade-in-simple relative z-50">
           <h1 className="text-lg md:text-xl tracking-[0.2em] text-stone-400 font-light cursor-pointer select-none uppercase" onClick={() => (loadReflection(index[0]?.date), setShowCalendar(false))}>daily reflections</h1>
