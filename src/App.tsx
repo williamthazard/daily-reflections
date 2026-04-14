@@ -17,9 +17,6 @@ type ReflectionIndexItem = {
 
 type Theme = 'light' | 'dark' | 'system';
 
-// Visible SoundCloud widget — styled via URL parameters, dark mode via CSS.
-// Users interact directly with the native SC controls, fixing the mobile
-// triple-tap play bug that occurred with our old hidden-iframe approach.
 const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: string | null }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const tokenParam = secretToken ? `%3Fsecret_token%3D${secretToken}` : '';
@@ -314,7 +311,7 @@ function App() {
             <>
               {/* Calendar View - Persistent but hidden when not active */}
               <div className={showCalendar ? 'block' : 'hidden'}>
-                <CalendarView 
+                <CalendarView
                   index={index}
                   viewDate={viewDate}
                   setViewDate={setViewDate}
