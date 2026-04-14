@@ -324,7 +324,7 @@ function App() {
 
               {/* Reflection View - Persistent but hidden when calendar is active */}
               {currentReflection && (
-                <article className={`max-w-2xl mx-auto relative ${showCalendar ? 'hidden' : 'block'}`}>
+                <article className={`max-w-2xl mx-auto relative ${showCalendar ? 'hidden' : 'block animate-fade-in-simple'}`}>
                   {/* Loading/Error Overlay */}
                   <div className={`absolute inset-0 z-10 bg-stone-50/50 dark:bg-stone-950/50 backdrop-blur-[2px] flex items-start justify-center pt-20 transition-opacity duration-300 ${(loading || error) ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                     <div className="text-center space-y-4">
