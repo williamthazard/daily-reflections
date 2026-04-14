@@ -21,11 +21,12 @@ type Theme = 'light' | 'dark' | 'system';
 // Users interact directly with the native SC controls, fixing the mobile
 // triple-tap play bug that occurred with our old hidden-iframe approach.
 const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: string | null }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
   const tokenParam = secretToken ? `%3Fsecret_token%3D${secretToken}` : '';
   const src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}${tokenParam}&auto_play=false&show_artwork=false&show_user=false&show_comments=false&show_reposts=false&show_teaser=false&buying=false&sharing=false&download=false&show_playcount=false&hide_related=true&color=a8a29e`;
 
   return (
-    <div className="animate-fade-in-simple">
+    <div className={`transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div className="sc-player rounded-full overflow-hidden border border-stone-200 dark:border-stone-800 p-2">
         <iframe
           width="100%"
@@ -36,6 +37,7 @@ const AudioPlayer = ({ trackId, secretToken }: { trackId: string, secretToken?: 
           src={src}
           title="Audio player"
           className="block"
+          onLoad={() => setIsLoaded(true)}
         />
       </div>
     </div>
