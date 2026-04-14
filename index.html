@@ -13,8 +13,14 @@
           var activeTheme = theme === 'system' ? (supportDark ? 'dark' : 'light') : theme;
           document.documentElement.classList.add(activeTheme);
           document.documentElement.style.colorScheme = activeTheme;
+          
+          // Apply immediate background to prevent "white flash" on overscroll
+          if (activeTheme === 'dark') {
+            document.documentElement.style.backgroundColor = '#000000';
+          }
+          
           // Set initial theme-color meta
-          var themeColor = activeTheme === 'dark' ? '#0c0a09' : '#fafaf9';
+          var themeColor = activeTheme === 'dark' ? '#000000' : '#fafaf9';
           var meta = document.createElement('meta');
           meta.name = 'theme-color';
           meta.content = themeColor;

@@ -135,6 +135,7 @@ function App() {
       root.classList.remove('light', 'dark');
       root.classList.add(t);
       root.style.colorScheme = t;
+      root.style.backgroundColor = t === 'dark' ? '#000000' : '#fafaf9';
 
       let meta = document.querySelector('meta[name="theme-color"]');
       if (meta) {
